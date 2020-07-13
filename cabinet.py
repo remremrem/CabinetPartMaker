@@ -15,6 +15,19 @@ class Spanner:
         self.placement = Spanner.FRONT
         self.location = 0 #location from bottom of cabinet to center of spanner
         
+# class to represent vertical dividers
+class Divider:
+
+    #PLACEMENT ENUMS
+    FRONT = 1
+    MID = 2
+    BACK = 3
+
+    def __init__(self):
+        self.depth = 0
+        self.placement = Divider.FRONT
+        self.location = 0 #location from left of cabinet to center of divider
+        
 
 class Cabinet:
     def __init__(self, height=30, depth=12, width=24, unit_num=1, quantity=1, name="newcab"):
@@ -38,7 +51,8 @@ class Cabinet:
 
         self.adjustable_shelves = 0
         
-        self.fixed_shelves = []
+        self.fixed_shelves = [] #list of fixed shelves and spanners
+        self.dividers = []
 
 
 class BaseCabinet(Cabinet):

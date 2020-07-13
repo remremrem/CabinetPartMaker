@@ -1,15 +1,35 @@
 # import_kcd.py
 
-CSV = "jobfile.job"
+import cabinet
 
-def parseCSV():
-    file = open(CSV, "r")
+
+def parseCSV(csv):
+    file = open(csv, "r")
     lines = file.readlines()
     file.close()
     for line in lines:
+        blah blah blah
+
+
+def setDefaults(kcdcab, newcab):
+    newcab.left_reveal = kcdcab.left_reveal
+    newcab.right_reveal = kcdcab.right_reveal
+    newcab.bottom_reveal = kcdcab.bottom_reveal
+    newcab.top_reveal = kcdcab.top_reveal
+    newcab.door_gap = kcdcab.door_gap
+    newcab.drawer_gap = kcdcab.drawer_gap
+    newcab.finished_left = kcdcab.finished_left
+    newcab.finished_right = kcdcab.finished_right
+    newcab.adjustable_shelves = kcdcab.adjustable_shelves
+    newcab.fixed_shelves = kcdcab.fixed_shelves
+    
         
-        
-        
+def convert(cab):
+    newcab = None
+    if cab.ztype == "101":
+        newcab = cabinet.Cabinet(cab.height, cab.depth, cab.width, cab.unit_num, cab.quantity, "Upper Cabinet")
+        setDefaults(cab, newcab)
+
         
         
 class KCD_Cab:

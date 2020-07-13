@@ -1,5 +1,11 @@
 #main.py
-import operation
+import import_kcd
 
-#operations
-drawer_end_rabbet = Ope
+
+Cabinets = []
+
+KCD_Cabinets = import_kcd.parseCSV("csvfile.csv")
+
+for cab in KCD_Cabinets:
+    Cabinets.append(import_kcd.convert(cab))
+
