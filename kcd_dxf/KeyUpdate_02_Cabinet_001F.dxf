@@ -39,7 +39,7 @@ LAYER
  0
 LAYER
  2
-PanelRout
+RoutContour
  70
 0
  62
@@ -63,7 +63,7 @@ ENTITIES
  0
 POLYLINE
  8
-PanelRout
+RoutContour
  66
 1
  10
@@ -73,23 +73,13 @@ PanelRout
  30
 0.0
  39
--0.250000
+0.000000
  70
 1
  0
 VERTEX
  8
-PanelRout
- 10
-0.000000
- 20
-24.968800
- 30
-0.0
- 0
-VERTEX
- 8
-PanelRout
+RoutContour
  10
 0.000000
  20
@@ -99,9 +89,9 @@ PanelRout
  0
 VERTEX
  8
-PanelRout
+RoutContour
  10
-28.968800
+11.875000
  20
 0.000000
  30
@@ -109,17 +99,27 @@ PanelRout
  0
 VERTEX
  8
-PanelRout
+RoutContour
  10
-28.968800
+11.875000
  20
-24.968800
+26.000000
+ 30
+0.0
+ 0
+VERTEX
+ 8
+RoutContour
+ 10
+0.000000
+ 20
+26.000000
  30
 0.0
  0
 SEQEND
  8
-PanelRout
+RoutContour
  0
 ENDSEC
  0
