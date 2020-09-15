@@ -1,0 +1,550 @@
+ 0
+SECTION
+ 2
+HEADER
+ 0
+ENDSEC
+ 0
+SECTION
+ 2
+TABLES
+ 0
+TABLE
+ 2
+LTYPE
+ 70
+1
+ 0
+LTYPE
+ 2
+CONTINUOUS
+ 70
+0
+ 3
+Solid line
+ 72
+65
+ 73
+0
+ 40
+0.0
+ 0
+ENDTAB
+ 0
+TABLE
+ 2
+LAYER
+ 70
+5
+ 0
+LAYER
+ 2
+PanelRout
+ 70
+0
+ 62
+1
+ 6
+CONTINUOUS
+ 0
+LAYER
+ 2
+DrawerPilot
+ 70
+0
+ 62
+6
+ 6
+CONTINUOUS
+ 0
+LAYER
+ 2
+RoutBack
+ 70
+0
+ 62
+6
+ 6
+CONTINUOUS
+ 0
+LAYER
+ 2
+RabbetDrawer
+ 70
+0
+ 62
+6
+ 6
+CONTINUOUS
+ 0
+LAYER
+ 2
+RabbetDrawerB
+ 70
+0
+ 62
+6
+ 6
+CONTINUOUS
+ 0
+ENDTAB
+ 0
+ENDSEC
+ 0
+SECTION
+ 2
+BLOCKS
+ 0
+ENDSEC
+ 0
+SECTION
+ 2
+ENTITIES
+ 0
+POLYLINE
+ 8
+PanelRout
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 39
+-0.750000
+ 70
+1
+ 0
+VERTEX
+ 8
+PanelRout
+ 10
+0.000000
+ 20
+3.750000
+ 30
+0.0
+ 0
+VERTEX
+ 8
+PanelRout
+ 10
+0.000000
+ 20
+0.000000
+ 30
+0.0
+ 0
+VERTEX
+ 8
+PanelRout
+ 10
+21.750000
+ 20
+0.000000
+ 30
+0.0
+ 0
+VERTEX
+ 8
+PanelRout
+ 10
+21.750000
+ 20
+3.750000
+ 30
+0.0
+ 0
+SEQEND
+ 8
+PanelRout
+ 0
+CIRCLE
+ 8
+DrawerPilot
+ 10
+20.970000
+ 20
+0.905000
+ 30
+0.000000
+ 39
+-0.750000
+ 40
+0.039370
+ 210
+ 0 
+ 220
+ 0 
+ 230
+ 1 
+ 0
+CIRCLE
+ 8
+DrawerPilot
+ 10
+0.780000
+ 20
+0.905000
+ 30
+0.000000
+ 39
+-0.750000
+ 40
+0.039370
+ 210
+ 0 
+ 220
+ 0 
+ 230
+ 1 
+ 0
+CIRCLE
+ 8
+DrawerPilot
+ 10
+1.678000
+ 20
+0.905000
+ 30
+0.000000
+ 39
+-0.750000
+ 40
+0.039370
+ 210
+ 0 
+ 220
+ 0 
+ 230
+ 1 
+ 0
+CIRCLE
+ 8
+DrawerPilot
+ 10
+20.072000
+ 20
+0.905000
+ 30
+0.000000
+ 39
+-0.750000
+ 40
+0.039370
+ 210
+ 0 
+ 220
+ 0 
+ 230
+ 1 
+ 0
+CIRCLE
+ 8
+DrawerPilot
+ 10
+20.380000
+ 20
+0.905000
+ 30
+0.000000
+ 39
+-0.750000
+ 40
+0.039370
+ 210
+ 0 
+ 220
+ 0 
+ 230
+ 1 
+ 0
+CIRCLE
+ 8
+DrawerPilot
+ 10
+1.370000
+ 20
+0.905000
+ 30
+0.000000
+ 39
+-0.750000
+ 40
+0.039370
+ 210
+ 0 
+ 220
+ 0 
+ 230
+ 1 
+ 0
+POLYLINE
+ 8
+RoutBack
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 39
+-0.125000
+ 40
+0.250000
+ 41
+0.250000
+ 70
+0
+ 0
+VERTEX
+ 8
+RoutBack
+ 10
+-0.062500
+ 20
+0.500000
+ 30
+0.0
+ 42
+0.0
+ 0
+VERTEX
+ 8
+RoutBack
+ 10
+21.812500
+ 20
+0.500000
+ 30
+0.0
+ 42
+0
+ 0
+SEQEND
+ 8
+RoutBack
+ 0
+POLYLINE
+ 8
+RabbetDrawer
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 39
+-0.125000
+ 40
+0.250000
+ 41
+0.250000
+ 70
+0
+ 0
+VERTEX
+ 8
+RabbetDrawer
+ 10
+-0.025000
+ 20
+2.750000
+ 30
+0.0
+ 42
+0.0
+ 0
+VERTEX
+ 8
+RabbetDrawer
+ 10
+0.656250
+ 20
+2.750000
+ 30
+0.0
+ 42
+0.0
+ 0
+VERTEX
+ 8
+RabbetDrawer
+ 10
+0.656250
+ 20
+-0.062500
+ 30
+0.0
+ 42
+0
+ 0
+SEQEND
+ 8
+RabbetDrawer
+ 0
+POLYLINE
+ 8
+RabbetDrawerB
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 39
+-0.125000
+ 40
+0.625000
+ 41
+0.625000
+ 70
+0
+ 0
+VERTEX
+ 8
+RabbetDrawerB
+ 10
+0.269250
+ 20
+2.533800
+ 30
+0.0
+ 42
+0.0
+ 0
+VERTEX
+ 8
+RabbetDrawerB
+ 10
+0.269250
+ 20
+0.141470
+ 30
+0.0
+ 42
+0
+ 0
+SEQEND
+ 8
+RabbetDrawerB
+ 0
+POLYLINE
+ 8
+RabbetDrawer
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 39
+-0.125000
+ 40
+0.250000
+ 41
+0.250000
+ 70
+0
+ 0
+VERTEX
+ 8
+RabbetDrawer
+ 10
+21.775000
+ 20
+2.750000
+ 30
+0.0
+ 42
+0.0
+ 0
+VERTEX
+ 8
+RabbetDrawer
+ 10
+21.093750
+ 20
+2.750000
+ 30
+0.0
+ 42
+0.0
+ 0
+VERTEX
+ 8
+RabbetDrawer
+ 10
+21.093750
+ 20
+-0.062500
+ 30
+0.0
+ 42
+0
+ 0
+SEQEND
+ 8
+RabbetDrawer
+ 0
+POLYLINE
+ 8
+RabbetDrawerB
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 39
+-0.125000
+ 40
+0.625000
+ 41
+0.625000
+ 70
+0
+ 0
+VERTEX
+ 8
+RabbetDrawerB
+ 10
+21.480750
+ 20
+2.533800
+ 30
+0.0
+ 42
+0.0
+ 0
+VERTEX
+ 8
+RabbetDrawerB
+ 10
+21.480750
+ 20
+0.141470
+ 30
+0.0
+ 42
+0
+ 0
+SEQEND
+ 8
+RabbetDrawerB
+ 0
+ENDSEC
+ 0
+EOF

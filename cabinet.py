@@ -53,6 +53,7 @@ class Cabinet:
         
         self.fixed_shelves = [] #list of fixed shelves and spanners
         self.dividers = []
+        
 
 
 class BaseCabinet(Cabinet):

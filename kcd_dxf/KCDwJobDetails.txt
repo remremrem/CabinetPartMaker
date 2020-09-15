@@ -1,0 +1,9 @@
+700 	Version
+HeadingLine 1, 	
+HeadingLine 2, 	
+HeadingLine 3, 	
+HeadingLine 4, 	
+HeadingLine 5, 	
+Job Order Date, 	9/14/2020
+Job Due Date, 	9/14/2020
+Invoice Number, 	
