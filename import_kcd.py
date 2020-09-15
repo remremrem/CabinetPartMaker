@@ -46,8 +46,31 @@ def parseCSV(csv):
                     cab.kick_height = float(prop.split("=")[1])
                 elif " z=" in prop:
                     cab.ztype = prop.split("=")[1]
-            print(cab)
+                elif " dh1=" in prop:
+                    cab.dh1 = float(prop.split("=")[1])
+                elif " dh2=" in prop:
+                    cab.dh1 = float(prop.split("=")[1])
+                elif " dh3=" in prop:
+                    cab.dh1 = float(prop.split("=")[1])
+                elif " dh4=" in prop:
+                    cab.dh1 = float(prop.split("=")[1])
+                elif " dh5=" in prop:
+                    cab.dh1 = float(prop.split("=")[1])
+                elif " dh6=" in prop:
+                    cab.dh1 = float(prop.split("=")[1])
+                elif " dh7=" in prop:
+                    cab.dh1 = float(prop.split("=")[1])
+                elif " dh8=" in prop:
+                    cab.dh1 = float(prop.split("=")[1])
             cabs.append(cab)
+        elif "record=face" in line:
+            face = KCD_Face()
+            for prop in line.split(","):
+                if " facetype=" in prop:
+                    face.face_type = prop.split("=")[1]
+                elif " swingtype=" in prop:
+                    face.action = prop.split("=")[1]
+            cab.faces.append(face)
     return cabs
 
 
@@ -97,6 +120,7 @@ class KCD_Cab:
         self.finished_left = 0
         self.finished_right = 0
         self.openings = []
+        self.faces = []
         
     def __str__(self):
         return str("CABINET\n"+
@@ -135,10 +159,10 @@ class KCD_Face:
     
     #DOOR SWING ENUMS
     FIXED = 0
-    LEFT_SWING = 1
-    RIGHT_SWING = 2
-    UP_SWING = 3
-    DOWN_SWING = 4
+    SWING_LEFT = 1
+    SWING_RIGHT = 2
+    SWING_UP = 3
+    SWING_DOWN = 4
     PULLOUT = 5
     TIPOUT = 6
     
