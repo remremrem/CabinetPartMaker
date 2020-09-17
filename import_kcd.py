@@ -87,11 +87,12 @@ def setDefaults(kcdcab, newcab):
     newcab.fixed_shelves = kcdcab.fixed_shelves
     
         
-def convert(cab):
+def convert(kcab):
     newcab = None
-    if cab.ztype == "101":
-        newcab = cabinet.Cabinet(cab.height, cab.depth, cab.width, cab.unit_num, cab.quantity, "Upper Cabinet")
-        setDefaults(cab, newcab)
+    if kcab.ztype == "101":
+        newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_num, kcab.quantity, "Wall Cabinet")
+        setDefaults(kcab, newcab)
+        newcab.cells = Cabinet.Cell(t=Cabinet.Cell.DOOR)
 
         
         
