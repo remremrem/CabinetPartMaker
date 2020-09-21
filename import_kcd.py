@@ -1,6 +1,7 @@
 # import_kcd.py
 
 import cabinet
+from cabinet import Cell
 import fnmatch
 
 
@@ -46,7 +47,7 @@ def parseCSV(csv):
                 elif " kick=" in prop:
                     cab.kick_height = float(prop.split("=")[1])
                 elif " z=" in prop:
-                    cab.ztype = prop.split("=")[1]
+                    cab.ztype = prop.split("=")[1].strip()
             cabs.append(cab)
         elif "record=face" in line:
             face = KCD_Face()
@@ -84,7 +85,7 @@ def setDefaults(kcdcab, newcab):
     newcab.finished_left = kcdcab.finished_left
     newcab.finished_right = kcdcab.finished_right
     newcab.adjustable_shelves = kcdcab.adjustable_shelves
-    newcab.fixed_shelves = kcdcab.fixed_shelves
+    #newcab.fixed_shelves = kcdcab.fixed_shelves
     
 
 class KCD_Cab:
@@ -180,11 +181,26 @@ class KCD_Face:
 
 def convert(kcab):
     newcab = None
+    print("CONVERT: ", kcab.ztype)
     if kcab.ztype == "101":
-        newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_num, kcab.quantity, "Wall Cabinet")
+        newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity, "Wall Cabinet")
         setDefaults(kcab, newcab)
-        newcab.cells = Cabinet.Cell(t=Cabinet.Cell.DOOR)        
         
+        cell_list = [ Cell(Cell.COLUMN),
+            [
+                Cell(Cell.ROW), 
+                    [ 
+                    Cell(Cell.DRAWER), 
+                    Cell(Cell.DRAWER),
+                    ],
+                Cell(Cell.DRAWER), 
+                Cell(Cell.DRAWER),
+            ],
+        ]
+                    
+        newcab.cells = Cell.fromList(cell_list)[0]
+        print("CELLS AS LIST: ", newcab.cells.asList())
+    return newcab
         
         
         

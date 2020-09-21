@@ -29,13 +29,13 @@ class Divider:
         self.location = 0 #location from left of cabinet to center of divider
 
 
-class Cell:
+class Cell: #these are the cells that make up the "cabinet face grid"
     #CELL TYPE ENUMS
-    OPEN = 0
-    DOOR = 1
-    DRAWER = 2
-    ROW = 3
-    COLUMN = 4
+    OPEN = 0 # unfaced opening in the cabinet
+    DOOR = 1 # opening with a door covering it
+    DRAWER = 2 # opening with a drawer inside it
+    ROW = 3 # this cell holds a row of other cells
+    COLUMN = 4 # this cell holds a column of other cells
     
     #DOOR SWING (ACTION) ENUMS
     FIXED = 0
@@ -51,6 +51,11 @@ class Cell:
         self.cell_type = t
         self.action = a
         self.cells = []
+        if not a and t == 2:
+            self.action = 6
+    
+    def addCell(self, newcell):
+        self.cells.append(newcell)
         
     def asList(self):
         l = [self.cell_type]
@@ -61,8 +66,38 @@ class Cell:
             l.append(self)
         return l
     
-    def addCell(self, newcell):
-        self.cells.append(newcell)
+    @staticmethod
+    def fromList(l): # generate an "cabinet face grid" from a list of cells
+        # example list: [ Cell(Cell.COLUMN),
+        #                 [
+        #                   Cell(Cell.ROW), 
+        #                   [ 
+        #                       Cell(Cell.DRAWER), 
+        #                       Cell(Cell.DRAWER),
+        #                   ],
+        #                   Cell(Cell.DRAWER), 
+        #                   Cell(Cell.DRAWER),
+        #                 ],
+        #               ]
+        # this list represents a cabinet with two drawers side by side on top, 
+        # one drawer in the middle, and one drawer in the bottom
+        
+        cell_list = []
+        cellcount = 0
+        while cellcount < len(l):
+            if l[cellcount].cell_type > 2:
+                cell = l[cellcount]
+                cells = Cell.fromList(l[cellcount+1])
+                for each in cells:
+                    cell.cells.append(each)
+                cell_list.append(cell)
+                cellcount += 2
+            else:
+                cell_list.append(l[cellcount])
+                cellcount += 1
+        if cell_list:
+            return cell_list
+        
 
 class Cabinet:
     def __init__(self, height=30, depth=12, width=24, unit_num=1, quantity=1, name="newcab"):
