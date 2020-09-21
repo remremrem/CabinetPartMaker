@@ -151,14 +151,15 @@ class KCD_Face:
     DRAWER = 2
     FALSE = 3
     
-    #DOOR SWING ENUMS
+    #DOOR SWING (ACTION) ENUMS
     FIXED = 0
     SWING_LEFT = 1
     SWING_RIGHT = 2
-    SWING_UP = 3
-    SWING_DOWN = 4
-    PULLOUT = 5
-    TIPOUT = 6
+    SWING_PAIR = 3
+    SWING_UP = 4
+    SWING_DOWN = 5
+    PULLOUT = 6
+    TIPOUT = 7
     
     def __init__(self):
         self.elevation = 0
