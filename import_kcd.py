@@ -1,6 +1,7 @@
 # import_kcd.py
 
 import cabinet
+import fnmatch
 
 
 def parseCSV(csv):
@@ -17,9 +18,9 @@ def parseCSV(csv):
                 elif " doorgap=" in prop:
                     cab.door_gap = float(prop.split("=")[1])
                 elif " rightside=" in prop:
-                    cab.right_side = float(prop.split("=")[1])
+                    cab.right_side_depth = float(prop.split("=")[1])
                 elif " leftside=" in prop:
-                    cab.left_side = float(prop.split("=")[1])
+                    cab.left_side_depth = float(prop.split("=")[1])
                 elif " bottomreveal=" in prop:
                     cab.bottom_reveal = float(prop.split("=")[1])
                 elif " topreveal=" in prop:
@@ -46,30 +47,29 @@ def parseCSV(csv):
                     cab.kick_height = float(prop.split("=")[1])
                 elif " z=" in prop:
                     cab.ztype = prop.split("=")[1]
-                elif " dh1=" in prop:
-                    cab.dh1 = float(prop.split("=")[1])
-                elif " dh2=" in prop:
-                    cab.dh1 = float(prop.split("=")[1])
-                elif " dh3=" in prop:
-                    cab.dh1 = float(prop.split("=")[1])
-                elif " dh4=" in prop:
-                    cab.dh1 = float(prop.split("=")[1])
-                elif " dh5=" in prop:
-                    cab.dh1 = float(prop.split("=")[1])
-                elif " dh6=" in prop:
-                    cab.dh1 = float(prop.split("=")[1])
-                elif " dh7=" in prop:
-                    cab.dh1 = float(prop.split("=")[1])
-                elif " dh8=" in prop:
-                    cab.dh1 = float(prop.split("=")[1])
             cabs.append(cab)
         elif "record=face" in line:
             face = KCD_Face()
             for prop in line.split(","):
-                if " facetype=" in prop:
-                    face.face_type = prop.split("=")[1]
-                elif " swingtype=" in prop:
-                    face.action = prop.split("=")[1]
+                print("FACEPROP: ", prop)
+                if fnmatch.fnmatch(prop, " d*z=*"):
+                    face.elevation = float(prop.split("=")[1])
+                elif fnmatch.fnmatch(prop, " d*h=*"):
+                    face.height = float(prop.split("=")[1])
+                elif fnmatch.fnmatch(prop, " d*w=*"):
+                    face.width = float(prop.split("=")[1])
+                elif fnmatch.fnmatch(prop, " d*ld=*"): #check for left swing door
+                    if float(prop.split("=")[1]) > 0:
+                        face.action += 1
+                        face.face_type = 1
+                elif fnmatch.fnmatch(prop, " d*rd=*"): #check for right swing door
+                    if float(prop.split("=")[1]) > 0:
+                        face.action += 2
+                        face.face_type = 1
+                elif fnmatch.fnmatch(prop, " d*dr=*"): #check if drawer
+                    if float(prop.split("=")[1]) > 0:
+                        face.action = 5
+                        face.face_type = 2
             cab.faces.append(face)
     return cabs
 
@@ -86,16 +86,7 @@ def setDefaults(kcdcab, newcab):
     newcab.adjustable_shelves = kcdcab.adjustable_shelves
     newcab.fixed_shelves = kcdcab.fixed_shelves
     
-        
-def convert(kcab):
-    newcab = None
-    if kcab.ztype == "101":
-        newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_num, kcab.quantity, "Wall Cabinet")
-        setDefaults(kcab, newcab)
-        newcab.cells = Cabinet.Cell(t=Cabinet.Cell.DOOR)
 
-        
-        
 class KCD_Cab:
     def __init__(self):
         self.ztype = 0
@@ -120,10 +111,12 @@ class KCD_Cab:
         self.adjustable_shelves = 0
         self.finished_left = 0
         self.finished_right = 0
-        self.openings = []
         self.faces = []
         
     def __str__(self):
+        faces = ""
+        for each in self.faces: 
+            faces += each.__str__()+"\n"
         return str("CABINET\n"+
             "ztype: " + str(self.ztype) + " " +
             "unit_number: " + str(self.unit_number) + " " +
@@ -147,7 +140,7 @@ class KCD_Cab:
             "adjustable_shelves: " + str(self.adjustable_shelves) + " " +
             "finished_left: " + str(self.finished_left) + " " +
             "finished_right: " + str(self.finished_right) + " " +
-            "openings: " + str(self.openings) + " " 
+            "faces: " + faces + " " 
             )
         
         
@@ -174,7 +167,22 @@ class KCD_Face:
         self.face_type = KCD_Face.OPEN
         self.action = KCD_Face.FIXED
         
+    def __str__(self):
+        return str("FACE "+
+            "height: " + str(self.height) + " " +
+            "width: " + str(self.width) + " " +
+            "face_type: " + str(self.face_type) + " " +
+            "elevation: " + str(self.elevation) + " " +
+            "action: " + str(self.action) + " "
+            )
         
+
+def convert(kcab):
+    newcab = None
+    if kcab.ztype == "101":
+        newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_num, kcab.quantity, "Wall Cabinet")
+        setDefaults(kcab, newcab)
+        newcab.cells = Cabinet.Cell(t=Cabinet.Cell.DOOR)        
         
         
         

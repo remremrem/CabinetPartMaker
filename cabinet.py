@@ -57,7 +57,7 @@ class Cell:
         if self.cell_type > 2:
             for each in self.cells:
                 l.append(each.asList())
-        else
+        else:
             l.append(self)
         return l
     
