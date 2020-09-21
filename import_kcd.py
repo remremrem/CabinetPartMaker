@@ -186,20 +186,11 @@ def convert(kcab):
         newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity, "Wall Cabinet")
         setDefaults(kcab, newcab)
         
-        cell_list = [ Cell(Cell.COLUMN),
-            [
-                Cell(Cell.ROW), 
-                    [ 
-                    Cell(Cell.DRAWER), 
-                    Cell(Cell.DRAWER),
-                    ],
-                Cell(Cell.DRAWER), 
-                Cell(Cell.DRAWER),
-            ],
-        ]
-                    
+        cell_list = [ Cell(Cell.DOOR) ]
         newcab.cells = Cell.fromList(cell_list)[0]
         print("CELLS AS LIST: ", newcab.cells.asList())
+        
+        
     return newcab
         
         

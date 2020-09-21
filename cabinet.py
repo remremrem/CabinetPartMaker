@@ -1,5 +1,6 @@
 #cabinet.py
 
+import job_settings
 
 
 # class to represent middle spanners or fixed shelves
@@ -126,6 +127,8 @@ class Cabinet:
         self.dividers = []
         
         self.cells = None
+        
+        self.parts = None
 
 
 class WallCabinet(Cabinet):
