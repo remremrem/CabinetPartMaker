@@ -28,6 +28,40 @@ class Divider:
         self.depth = 0
         self.placement = Divider.FRONT
         self.location = 0 #location from left of cabinet to center of divider
+        
+        
+class Face:
+    #FACE TYPE ENUMS
+    OPEN = 0
+    DOOR = 1
+    DRAWER = 2
+    FALSE = 3
+    
+    #DOOR SWING (ACTION) ENUMS
+    FIXED = 0
+    SWING_LEFT = 1
+    SWING_RIGHT = 2
+    SWING_PAIR = 3
+    SWING_UP = 4
+    SWING_DOWN = 5
+    PULLOUT = 6
+    TIPOUT = 7
+    
+    def __init__(self):
+        self.elevation = 0
+        self.height = 0
+        self.width = 0
+        self.face_type = Face.OPEN
+        self.action = Face.FIXED
+        
+    def __str__(self):
+        return str("FACE "+
+            "height: " + str(self.height) + " " +
+            "width: " + str(self.width) + " " +
+            "face_type: " + str(self.face_type) + " " +
+            "elevation: " + str(self.elevation) + " " +
+            "action: " + str(self.action) + " "
+            )
 
 
 class Cell: #these are the cells that make up the "cabinet face grid"
@@ -52,6 +86,8 @@ class Cell: #these are the cells that make up the "cabinet face grid"
         self.cell_type = t
         self.action = a
         self.cells = []
+        self.divider = []
+        self.face = []
         if not a and t == 2:
             self.action = 6
     
@@ -125,6 +161,8 @@ class Cabinet:
         
         self.fixed_shelves = [] #list of fixed shelves and spanners
         self.dividers = []
+        
+        self.faces = []
         
         self.cells = None
         
