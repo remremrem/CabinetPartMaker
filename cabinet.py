@@ -178,7 +178,6 @@ class WallCabinet(Cabinet):
         self.finished_top = False
         
 
-
 class BaseCabinet(Cabinet):
     # *args and **kwargs automagically pass arguments to parent class
     def __init__(self, kick_height=4, kick_depth=2.5, *args, **kwargs):
@@ -190,7 +189,7 @@ class BaseCabinet(Cabinet):
         self.back_strip_depth = 5
         
         self.mid_spanners = []
-
+       
 
 class BaseCorner(BaseCabinet):
     def __init__(self, left_width=32, right_width=32, left_side_depth=24,
