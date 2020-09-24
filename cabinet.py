@@ -121,9 +121,44 @@ class Face:
             "action: " + str(self.action) + " "
             )
 
+class DynamicProperty:
+    class Ptype(Enum):
+        PERCENT = 1
+        STATIC = 2
+        
+    def __init__(self, d=1, m=1):
+        self.modifier = m
+        self.d_value= d
+        self.ptype = self.ptypeEnum('PERCENT')
+        
+    def ptypeEnum(self, t):
+        if t:
+            return self.Ptype[str(t)]
+        
+    @property    
+    def value(self):
+        if self.ptype.value == 1:
+            return self.modifier * self.d_value
+        elif self.ptype.value == 2:
+            return self.d_value
 
+
+# class to represent vertical dividers
+class CellDivider:
+    def __init__(self, t=.75, q=1):
+        self.thickness = t
+        self.quantity = q
+        
+        
 class Cell: #these are the cells that make up the "cabinet face grid"
     
+    class Border(Enum): #enums for bordering cell configuration
+        BOTTOM = 1
+        TOP = 2
+        BOTH = 3
+        LEFT = 1
+        RIGHT = 2
+        
     class CellType(Enum): #CELL TYPE ENUMS
         OPEN = 1 # unfaced opening in the cabinet
         DOOR = 2 # opening with a door covering it
@@ -141,30 +176,23 @@ class Cell: #these are the cells that make up the "cabinet face grid"
         PULLOUT = 7
         TIPOUT = 8
 
-    def __init__(self, t=None, a=None):
-        self.cell_type = self.typeEnum(t)
-        self.action = self.actionEnum(a)
-        self.cells = []
-        self.divider = []
-        self.face = []
+    def __init__(self, t=None, a=None, d=None, ac=0):
         self.parent = None
+        self.cell_type = Cell.typeEnum(t)
+        self.action = Cell.actionEnum(a)
+        self.cells = []
+        self.adjacent_cells = ac
+        self.divider = d
+        self.face = []
         if not a and t == 3:
             self.action = 7
+            
+    def __str__(self):
+        return str([self, self.cell_type, self.parent])
     
     def addCell(self, newcell):
         newcell.parent = self
         self.cells.append(newcell)
-        
-    def typeEnum(self, t):
-        if t:
-            return self.CellType[str(t)]
-        
-    def actionEnum(self, a):
-        if a:
-            return self.CellAction[str(a)]
-            
-    def __str__(self):
-        return str([self, self.cell_type, self.parent])
     
     def printTree(self, tab=0):
         t=tab
@@ -184,6 +212,38 @@ class Cell: #these are the cells that make up the "cabinet face grid"
         else:
             l.append(self.cell_type)
         return l
+    
+    def addBorder(self, b):
+        if b:
+            try:
+                self.adjacent_cells += int(b)
+            except:
+                try:
+                    self.adjacent_cells += self.CellType[str(b)].value
+                except:
+                    print("Invalid Border Value: ", b + "\n must use one of following values: " + list(self.Border))
+                    
+    @staticmethod        
+    def typeEnum(t):
+        if t:
+            try:
+                return Cell.CellType(int(t))
+            except:
+                try:
+                    return Cell.CellType[str(t)]
+                except:
+                    print("Invalid typeEnum Value: ", b + "\n must use one of following values: " + list(Cell.CellType))
+    
+    @staticmethod
+    def actionEnum(a):
+        if a:
+            try:
+                return Cell.CellAction(int(a))
+            except:
+                try:
+                    return Cell.CellAction[str(a)]
+                except:
+                    print("Invalid actionEnum Value: ", b + "\n must use one of following values: " + list(Cell.CellAction))
     
     @staticmethod
     def fromList(l): # generate an "cabinet face grid" from a list of cells

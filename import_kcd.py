@@ -201,6 +201,29 @@ def convert(kcab):
         print("CELLS AS LIST: ", newcab.root_cell.asList())
         print("CELL TREE: \n" + newcab.root_cell.printTree())
         
+    if kcab.ztype.lower() == "243v3":
+        newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity, "Offset Vanity 3drw left")
+        setDefaults(kcab, newcab)
+        self, t=None, a=None, d=None, ac=0)
+        cell_list = [ Cell(t='COLUMN',a=None,d=None,ac=0),
+                        [
+                        Cell(t='DRAWER',a=None,d=None,ac=0),
+                        Cell(t='ROW',a=None,d=None,ac=0),
+                            [
+                            Cell(t='COLUMN',a=None,d=None,ac=0),
+                                [
+                                Cell(t='DRAWER',a=None,d=None,ac='BOTTOM'),
+                                Cell(t='DRAWER',a=None,d=None,ac='BOTH'),
+                                Cell(t='DRAWER',a=None,d=None,ac='TOP'),
+                                ],
+                            Cell(t='DOOR',a=None,d=None,ac="LEFT"),
+                            ],
+                        ],
+                    ]
+        newcab.root_cell = Cell.fromList(cell_list)[0]
+        print("CELLS AS LIST: ", newcab.root_cell.asList())
+        print("CELL TREE: \n" + newcab.root_cell.printTree())
+        
         
     return newcab
         
