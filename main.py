@@ -2,9 +2,10 @@
 import sys
 sys.dont_write_bytecode = True
 
-import import_kcd
+import import_kcd, material
 
 
+Material_Library = material.Library()
 Cabinets = []
 
 KCD_Cabinets = import_kcd.parseCSV("kcd_dxf/cnclist.txt")

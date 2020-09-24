@@ -204,7 +204,6 @@ def convert(kcab):
     if kcab.ztype.lower() == "243v3":
         newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity, "Offset Vanity 3drw left")
         setDefaults(kcab, newcab)
-        self, t=None, a=None, d=None, ac=0)
         cell_list = [ Cell(t='COLUMN',a=None,d=None,ac=0),
                         [
                         Cell(t='DRAWER',a=None,d=None,ac=0),
