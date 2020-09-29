@@ -20,12 +20,14 @@ class Library:
 
 
 class Material:
-    def __init__(self, color="new_material_color", thickness=.75, x=48, y=96, core=Ply):
+    def __init__(self, color="new_material_color", thickness=.75, x=48, y=96, core=None):
         self.color = color
         self.thickness = thickness
         self.x = x
         self.y = y
-        self.core = Ply
+        if core:
+            self.core = core
+        else: self.core = Core()
         
 class Core:
     def __init__(self, name="Ply"):

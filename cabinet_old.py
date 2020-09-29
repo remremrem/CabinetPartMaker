@@ -189,52 +189,48 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
         TIPOUT = 8
 
     def __init__(self, t=None, a=None, d=None, ac=None):
-        super().__init__()
-        self.pos = 0
         self.parent = None
-        self.adjacent_cells = ac
-        self.divider = d
-        self.face = []
-        
         if t:
             try:
                 self.cell_type = Cell.CellType(int(t))
             except:
                 self.cell_type = Cell.CellType[t.upper()]
-        else:
-            print("NO CELL TYPE: ", id(self))
-            self.cell_type = None
-            
         if a:
             try:
                 self.action = Cell.CellAction(int(a))
             except:
                 self.action = Cell.CellAction[a.upper()]
-        else:
-            self.action = None
-            
+        self.cells = []
+        self.adjacent_cells = ac
+        self.divider = d
+        self.face = []
         if not a and t == 3:
             self.action = 7
             
     def __str__(self):
-        return str(id(self)) + ", type: " + str(self.cell_type.name) + ", pos: " + str(self.pos) + ", len: " + str(len(self))
-            
-    def __repr__(self):
-        return self.__str__()
+        return str([self, self.cell_type, self.parent])
     
     def addCell(self, newcell):
-        #print("addCell: ", newcell, " to: ", self)
         newcell.parent = self
-        newcell.pos = len(self)
-        self.append(newcell)
+        self.cells.append(newcell)
     
     def printTree(self, tab=0):
         t=tab
         l = str(" ")*tab + self.__str__() +"\n"
         if self.cell_type.value > 4:
             t+=4
-            for each in self:
+            for each in self.cells:
                 l += each.printTree(t)
+        return l
+        
+    def asList(self):
+        l = [self]
+        if self.cell_type.value > 4:
+            l.append(self.cell_type)
+            for each in self.cells:
+                l.append(each.asList())
+        else:
+            l.append(self.cell_type)
         return l
     
     def addBorder(self, b):
@@ -268,7 +264,38 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
                     return Cell.CellAction[str(a)]
                 except:
                     print("Invalid actionEnum Value: ", b + "\n must use one of following values: " + list(Cell.CellAction))
-
+    
+    @staticmethod
+    def fromList(l): # generate an "cabinet face grid" from a list of cells
+        # example list: [ Cell(Cell.COLUMN),
+        #                 [
+        #                   Cell(Cell.ROW), 
+        #                   [ 
+        #                       Cell(Cell.DRAWER), 
+        #                       Cell(Cell.DRAWER),
+        #                   ],
+        #                   Cell(Cell.DRAWER), 
+        #                   Cell(Cell.DRAWER),
+        #                 ],
+        #               ]
+        # this list represents a cabinet with two drawers side by side on top, 
+        # one drawer in the middle, and one drawer in the bottom
+        
+        cell_list = []
+        cellcount = 0
+        while cellcount < len(l):
+            if l[cellcount].cell_type.value > 4:
+                cell = l[cellcount]
+                cells = Cell.fromList(l[cellcount+1])
+                for each in cells:
+                    cell.addCell(each)
+                cell_list.append(cell)
+                cellcount += 2
+            else:
+                cell_list.append(l[cellcount])
+                cellcount += 1
+        if cell_list:
+            return cell_list
         
         
 class Cabinet:

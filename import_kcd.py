@@ -55,6 +55,7 @@ def parseCSV(csv):
                 print("FACEPROP: ", prop)
                 if fnmatch.fnmatch(prop, " d*z=*"):
                     face.elevation = float(prop.split("=")[1])
+                    face.face_id = int(prop.split("d")[1].split("z")[0])
                 elif fnmatch.fnmatch(prop, " d*h=*"):
                     face.height = float(prop.split("=")[1])
                 elif fnmatch.fnmatch(prop, " d*w=*"):
@@ -74,19 +75,6 @@ def parseCSV(csv):
             cab.faces.append(face)
     return cabs
 
-
-def setDefaults(kcdcab, newcab):
-    newcab.left_reveal = kcdcab.left_reveal
-    newcab.right_reveal = kcdcab.right_reveal
-    newcab.bottom_reveal = kcdcab.bottom_reveal
-    newcab.top_reveal = kcdcab.top_reveal
-    newcab.door_gap = kcdcab.door_gap
-    newcab.drawer_gap = kcdcab.drawer_gap
-    newcab.finished_left = kcdcab.finished_left
-    newcab.finished_right = kcdcab.finished_right
-    newcab.adjustable_shelves = kcdcab.adjustable_shelves
-    #newcab.fixed_shelves = kcdcab.fixed_shelves
-    
 
 class KCD_Cab:
     def __init__(self):
@@ -141,7 +129,7 @@ class KCD_Cab:
             "adjustable_shelves: " + str(self.adjustable_shelves) + " " +
             "finished_left: " + str(self.finished_left) + " " +
             "finished_right: " + str(self.finished_right) + " " +
-            "faces: " + faces + " " 
+            "\nfaces:\n" + faces + " " 
             )
         
         
@@ -162,65 +150,121 @@ class KCD_Face:
     PULLOUT = 6
     TIPOUT = 7
     
-    def __init__(self):
+    def __init__(self, face_id=1):
         self.elevation = 0
         self.height = 0
         self.width = 0
         self.face_type = KCD_Face.OPEN
         self.action = KCD_Face.FIXED
+        self.face_id = face_id
         
     def __str__(self):
         return str("FACE "+
+            "face id: " + str(self.face_id) + " " +
             "height: " + str(self.height) + " " +
             "width: " + str(self.width) + " " +
             "face_type: " + str(self.face_type) + " " +
             "elevation: " + str(self.elevation) + " " +
             "action: " + str(self.action) + " "
             )
+
+
+def convertCabinet(kcab, newcab):
+    newcab.top_reveal = kcab.top_reveal
+    newcab.bottom_reveal =  kcab.bottom_reveal
+    newcab.left_reveal = kcab.left_reveal
+    newcab.right_reveal = kcab.right_reveal
+    newcab.door_gap = kcab.door_gap
+    newcab.drawer_gap = kcab.drawer_gap
+    newcab.finished_left = kcab.finished_left
+    newcab.finished_right = kcab.finished_right
+    newcab.adjustable_shelves = kcab.adjustable_shelves
+    
+def convertCorner(kcab, newcab):
+    newcab.left_side_depth = kcab.left_side_depth
+    newcab.right_side_depth = kcab.right_side_depth
+    
+    if "kcabtype is left corner":
+        newcab.left_width = kcab.depth
+        newcab.right_width = kcab.width
+    else:
+        newcab.left_width = kcab.width
+        newcab.right_width = kcab.depth
+    
+    
+def convertBaseCab(kcab, cabname="Base Cabinet", iscorner=False):
+    newcab = cabinet.BaseCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+    convertCabinet(kcab, newcab)
+    newcab.kick_depth = kcab.kick_depth
+    newcab.kick_height = kcab.kick_height
+    if iscorner: convertCorner(kcab, newcab)
+    return newcab
+    
+def convertTallCab(kcab, cabname="Tall Cabinet", iscorner=False):
+    newcab = cabinet.TallCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+    convertCabinet(kcab, newcab)
+    newcab.kick_depth = kcab.kick_depth
+    newcab.kick_height = kcab.kick_height
+    if iscorner: convertCorner(kcab, newcab)
+    return newcab
+    
+def convertWallCab(kcab, cabname="Wall Cabinet", iscorner=False):
+    newcab = cabinet.WallCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+    convertCabinet(kcab, newcab)
+    if iscorner: convertCorner(kcab, newcab)
+    return newcab
+    
+    
         
 
 def convert(kcab):
     newcab = None
     print("CONVERT: ", kcab.ztype)
     if kcab.ztype == "101":
-        newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity, "Wall Cabinet")
-        setDefaults(kcab, newcab)
+        newcab = convertWallCab(kcab, "Wall Cabinet", False)
         
-        cell_list = [ Cell('COLUMN'),
-                        [
-                        Cell('ROW'), 
-                            [ 
-                            Cell('DRAWER'), 
-                            Cell('DRAWER'),
-                            ],
-                        Cell('DRAWER'), 
-                        Cell('DRAWER'),
-                        ],
-                    ]
-        newcab.root_cell = Cell.fromList(cell_list)[0]
-        print("CELLS AS LIST: ", newcab.root_cell.asList())
+        root_cell = Cell('COLUMN')
+        root_cell.addCell(Cell('ROW'))
+        root_cell[0].addCell(Cell('DRAWER'))
+        root_cell[0].addCell(Cell('DRAWER'))
+        root_cell.addCell(Cell('DRAWER'))
+        root_cell.addCell(Cell('DRAWER'))
+        
+        newcab.root_cell = root_cell
+        #print("CELLS AS LIST: ", newcab.root_cell.asList())
+        print("CELLS AS LIST: ", newcab.root_cell)
         print("CELL TREE: \n" + newcab.root_cell.printTree())
         
     if kcab.ztype.lower() == "243v3":
-        newcab = cabinet.Cabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity, "Offset Vanity 3drw left")
-        setDefaults(kcab, newcab)
-        cell_list = [ Cell(t='COLUMN',a=None,d=None,ac=0),
+        newcab = convertBaseCab(kcab, "Offset Vanity 3drw left", False)
+        """cell_list = [ Cell(t='COLUMN',a=None,d=None,ac=None),
                         [
-                        Cell(t='DRAWER',a=None,d=None,ac=0),
-                        Cell(t='ROW',a=None,d=None,ac=0),
+                        Cell(t='DRAWER',a=None,d=None,ac='B'),
+                        Cell(t='ROW',a=None,d=cabinet.CellDivider(t=.75, q=2),ac='T'),
                             [
-                            Cell(t='COLUMN',a=None,d=None,ac=0),
+                            Cell(t='COLUMN',a=None,d=None,ac='R'),
                                 [
-                                Cell(t='DRAWER',a=None,d=None,ac='BOTTOM'),
-                                Cell(t='DRAWER',a=None,d=None,ac='BOTH'),
-                                Cell(t='DRAWER',a=None,d=None,ac='TOP'),
+                                Cell(t='DRAWER',a=None,d=None,ac='B'),
+                                Cell(t='DRAWER',a=None,d=None,ac='BT'),
+                                Cell(t='DRAWER',a=None,d=None,ac='T'),
                                 ],
-                            Cell(t='DOOR',a=None,d=None,ac="LEFT"),
+                            Cell(t='DOOR',a=None,d=None,ac="L"),
                             ],
                         ],
-                    ]
-        newcab.root_cell = Cell.fromList(cell_list)[0]
-        print("CELLS AS LIST: ", newcab.root_cell.asList())
+                    ]"""
+        
+        root_cell = Cell(t='COLUMN',a=None,d=None,ac=None)
+        root_cell.addCell(Cell(t='DRAWER',a=None,d=None,ac='B'))
+        root_cell.addCell(Cell(t='ROW',a=None,d=cabinet.CellDivider(t=.75, q=2),ac='T'))
+        root_cell[1].addCell(Cell(t='COLUMN',a=None,d=None,ac='R'))
+        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='B'))
+        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='BT'))
+        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='T'))
+        root_cell[1].addCell(Cell(t='DOOR',a=None,d=None,ac="L"))
+        
+        newcab.root_cell = root_cell
+        #print("CELLS AS LIST: ", newcab.root_cell.asList())
+        #print("CELLS AS LIST: ", newcab.root_cell)
         print("CELL TREE: \n" + newcab.root_cell.printTree())
         
         

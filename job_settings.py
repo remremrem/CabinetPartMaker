@@ -13,5 +13,8 @@ class JobSettings:
         self.applied_ends_material = self.library.applied_ends
         
         self.hinge_type = "standard"
+        self.slide_type = "undermount"
+        self.kick_type = "integrated"
+        
         
         
