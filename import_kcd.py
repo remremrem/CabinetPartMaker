@@ -72,7 +72,7 @@ def parseCSV(csv):
                     if float(prop.split("=")[1]) > 0:
                         face.action = 5
                         face.face_type = 2
-            cab.faces.append(face)
+            cab.faces[face.face_id] = face
     return cabs
 
 
@@ -100,11 +100,11 @@ class KCD_Cab:
         self.adjustable_shelves = 0
         self.finished_left = 0
         self.finished_right = 0
-        self.faces = []
+        self.faces = {}
         
     def __str__(self):
         faces = ""
-        for each in self.faces: 
+        for each in self.faces.values(): 
             faces += each.__str__()+"\n"
         return str("CABINET\n"+
             "ztype: " + str(self.ztype) + " " +
@@ -168,6 +168,12 @@ class KCD_Face:
             "action: " + str(self.action) + " "
             )
 
+def convertFace(kface):
+    face = cabinet.Face()
+    face.elevation = kface.elevation
+    face.height = kface.height
+    face.width = kface.width
+    
 
 def convertCabinet(kcab, newcab):
     newcab.top_reveal = kcab.top_reveal
@@ -254,13 +260,13 @@ def convert(kcab):
                     ]"""
         
         root_cell = Cell(t='COLUMN',a=None,d=None,ac=None)
-        root_cell.addCell(Cell(t='DRAWER',a=None,d=None,ac='B'))
+        root_cell.addCell(Cell(t='DRAWER',a=None,d=None,ac='B',face=convertFace(kcab.faces[1]) ))
         root_cell.addCell(Cell(t='ROW',a=None,d=cabinet.CellDivider(t=.75, q=2),ac='T'))
         root_cell[1].addCell(Cell(t='COLUMN',a=None,d=None,ac='R'))
-        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='B'))
-        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='BT'))
-        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='T'))
-        root_cell[1].addCell(Cell(t='DOOR',a=None,d=None,ac="L"))
+        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='B',face=convertFace(kcab.faces[2]) ))
+        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='BT',face=convertFace(kcab.faces[3]) ))
+        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='T',face=convertFace(kcab.faces[4]) ))
+        root_cell[1].addCell(Cell(t='DOOR',a=None,d=None,ac="L",face=convertFace(kcab.faces[5]) ))
         
         newcab.root_cell = root_cell
         #print("CELLS AS LIST: ", newcab.root_cell.asList())

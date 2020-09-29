@@ -3,54 +3,6 @@
 import job_settings
 from enum import Enum
 
-def newCab(cabinet_type="base", cab_name="Cabinet", width=24, height=30.5, depth=23.875, grid=[], faces=[], 
-           rightside=0, leftside=0, leftback=0, rightback=0, fl=0, fr=0, fbk=0, fbt=0, ft=0, trv=.25, rrv=.0625, lrv=.0625, 
-           brv=0, doorgap=.125, drawergap=.125, unitnum=1, shape="rect"):
-    newcab = None
-    if cabinet_type == "base":
-        newcab = BaseCabinet()
-        
-    elif cabinet_type == "wall":
-        newcab = WallCabinet()
-        newcab.finished_bottom = fbt
-        
-    elif cabinet_type == "tall":
-        newcab = TallCabinet()
-        
-    elif cabinet_type == "base_corner":
-        newcab = BaseCorner()
-        newcab.right_side_depth = rightside
-        newcab.left_side_depth = leftside
-        newcab.right_width = rightback
-        newcab.left_width = leftback
-        
-    elif cabinet_type == "wall_corner":
-        newcab = WallCorner()
-        newcab.finished_bottom = fbt
-        
-    elif cabinet_type == "tall_corner":
-        newcab = TallCorner()
-        
-    newcab.cab_name = cab_name
-    newcab.unit_number = unitnum
-    newcab.width = width
-    newcab.height = height
-    newcab.depth = depth
-    newcab.left_reveal = lrv
-    newcab.right_reveal = rrv
-    newcab.bottom_reveal = brv
-    newcab.top_reveal = trv
-    
-    newcab.door_gap = doorgap
-    newcab.drawer_gap = drawergap
-    newcab.finished_left = fl
-    newcab.finished_right = fr
-    newcab.finished_back = fbk
-    newcab.finished_top = ft
-    
-    return newcab
-        
-
 # class to represent middle spanners or fixed shelves
 class Spanner:
 
@@ -80,37 +32,10 @@ class Divider:
         
 class Face:
     
-    class FaceType(Enum): #CELL TYPE ENUMS
-        OPEN = 1 # unfaced opening in the cabinet
-        DOOR = 2 # opening with a door covering it
-        DRAWER = 3 # opening with a drawer inside it
-        FALSE = 4 # a false front
-
-    class FaceAction(Enum): #DOOR SWING (ACTION) ENUMS    
-        FIXED = 1
-        SWING_LEFT = 2
-        SWING_RIGHT = 3
-        SWING_PAIR = 4
-        SWING_UP = 5
-        SWING_DOWN = 6
-        PULLOUT = 7
-        TIPOUT = 8
-
-    
     def __init__(self):
         self.elevation = 0
         self.height = 0
         self.width = 0
-        self.face_type = self.typeEnum('OPEN')
-        self.action = self.typeEnum('FIXED')
-        
-    def typeEnum(self, t):
-        if t:
-            return self.FaceType[str(t)]
-        
-    def actionEnum(self, a):
-        if a:
-            return self.FaceAction[str(a)]
         
     def __str__(self):
         return str("FACE "+
@@ -188,13 +113,13 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
         PULLOUT = 7
         TIPOUT = 8
 
-    def __init__(self, t=None, a=None, d=None, ac=None):
+    def __init__(self, t=None, a=None, d=None, ac=None, face=None):
         super().__init__()
         self.pos = 0
         self.parent = None
         self.adjacent_cells = ac
         self.divider = d
-        self.face = []
+        self.face = None
         
         if t:
             try:
