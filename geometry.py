@@ -122,4 +122,5 @@ class Arc:
     def __mul__(self, s): # s is a scalar. use this method for scaling
         radius = self.radius * s
         return Arc(self.location, radius, self.angle, self.sweep)
+ 
         

@@ -1,6 +1,7 @@
 #cabinet.py
 
 import job_settings
+import geometry
 from enum import Enum
 
 # class to represent middle spanners or fixed shelves
@@ -113,36 +114,39 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
         PULLOUT = 7
         TIPOUT = 8
 
-    def __init__(self, t=None, a=None, d=None, ac=None, face=None):
+    def __init__(self, celltype=None, action=None, divider=None, region=None, face=None, size=geometry.Point(1,1), depth=None):
         super().__init__()
         self.pos = 0
         self.parent = None
-        self.adjacent_cells = ac
-        self.divider = d
+        self.region = region
+        self.divider = divider
         self.face = None
+        self.size = size
+        self.depth = depth
         
-        if t:
+        
+        if celltype:
             try:
-                self.cell_type = Cell.CellType(int(t))
+                self.cell_type = Cell.CellType(int(celltype))
             except:
-                self.cell_type = Cell.CellType[t.upper()]
+                self.cell_type = Cell.CellType[celltype.upper()]
         else:
             print("NO CELL TYPE: ", id(self))
             self.cell_type = None
             
-        if a:
+        if action:
             try:
-                self.action = Cell.CellAction(int(a))
+                self.action = Cell.CellAction(int(action))
             except:
-                self.action = Cell.CellAction[a.upper()]
+                self.action = Cell.CellAction[action.upper()]
         else:
             self.action = None
             
-        if not a and t == 3:
+        if not action and celltype == 3:
             self.action = 7
             
     def __str__(self):
-        return str(id(self)) + ", type: " + str(self.cell_type.name) + ", pos: " + str(self.pos) + ", len: " + str(len(self))
+        return str(id(self)) + ", type: " + str(self.cell_type.name) + ", pos: " + str(self.pos) + ", len: " + str(len(self)) + ", size: " + str(self.size)
             
     def __repr__(self):
         return self.__str__()
@@ -226,7 +230,9 @@ class Cabinet:
         
         self.root_cell = None
         
-        self.parts = None
+        self.parts = []
+        self.joints = []
+        
 
 
 class WallCabinet(Cabinet):
@@ -236,6 +242,9 @@ class WallCabinet(Cabinet):
 
         self.finished_bottom = False
         self.finished_top = False
+        
+    def makeParts(self):
+        pass
         
 
 class BaseCabinet(Cabinet):

@@ -24,6 +24,8 @@ class Part:
         self.joints = []
         self.hardware = []
         self.location = (0,0)
+        self.shape = "rectangle"
+        
         
         
     @property

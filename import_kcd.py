@@ -1,6 +1,7 @@
 # import_kcd.py
 
 import cabinet
+import geometry
 from cabinet import Cell
 import fnmatch
 
@@ -18,6 +19,8 @@ def parseCSV(csv):
                     cab.cab_name = prop.split("=")[1]
                 elif " doorgap=" in prop:
                     cab.door_gap = float(prop.split("=")[1])
+                elif " drawergap=" in prop:
+                    cab.drawer_gap = float(prop.split("=")[1])
                 elif " rightside=" in prop:
                     cab.right_side_depth = float(prop.split("=")[1])
                 elif " leftside=" in prop:
@@ -89,8 +92,8 @@ class KCD_Cab:
         self.left_reveal = 0
         self.right_reveal = 0
         self.top_reveal = 0
-        self.door_gap = 0
-        self.drawer_gap = 0
+        self.door_gap = .125
+        self.drawer_gap = .125
         self.doors = []
         self.drawers = []
         self.left_side_depth = 0
@@ -199,25 +202,31 @@ def convertCorner(kcab, newcab):
     
     
 def convertBaseCab(kcab, cabname="Base Cabinet", iscorner=False):
-    newcab = cabinet.BaseCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+    if iscorner:
+        newcab = cabinet.BaseCorner(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+        convertCorner(kcab, newcab)
+    else: newcab = cabinet.BaseCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
     convertCabinet(kcab, newcab)
     newcab.kick_depth = kcab.kick_depth
     newcab.kick_height = kcab.kick_height
-    if iscorner: convertCorner(kcab, newcab)
     return newcab
     
 def convertTallCab(kcab, cabname="Tall Cabinet", iscorner=False):
-    newcab = cabinet.TallCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+    if iscorner:
+        newcab = cabinet.TallCorner(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+        convertCorner(kcab, newcab)
+    else: newcab = cabinet.TallCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
     convertCabinet(kcab, newcab)
     newcab.kick_depth = kcab.kick_depth
     newcab.kick_height = kcab.kick_height
-    if iscorner: convertCorner(kcab, newcab)
     return newcab
     
 def convertWallCab(kcab, cabname="Wall Cabinet", iscorner=False):
-    newcab = cabinet.WallCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+    if iscorner:
+        newcab = cabinet.WallCorner(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
+        convertCorner(kcab, newcab)
+    else: newcab = cabinet.WallCabinet(kcab.height, kcab.depth, kcab.width, kcab.unit_number, kcab.quantity)
     convertCabinet(kcab, newcab)
-    if iscorner: convertCorner(kcab, newcab)
     return newcab
     
     
@@ -229,12 +238,10 @@ def convert(kcab):
     if kcab.ztype == "101":
         newcab = convertWallCab(kcab, "Wall Cabinet", False)
         
-        root_cell = Cell('COLUMN')
-        root_cell.addCell(Cell('ROW'))
-        root_cell[0].addCell(Cell('DRAWER'))
-        root_cell[0].addCell(Cell('DRAWER'))
-        root_cell.addCell(Cell('DRAWER'))
-        root_cell.addCell(Cell('DRAWER'))
+        root_cell = Cell(celltype='COLUMN',action=None,divider=None,region="TBLR",size=geometry.Point(kcab.width, kcab.height) )
+        print(kcab.faces)
+        f = convertFace(kcab.faces[1])
+        root_cell.addCell(Cell(celltype='DOOR',action=None,divider=None,region="TBLR",face=f, size=geometry.Point(kcab.width, kcab.height) ))
         
         newcab.root_cell = root_cell
         #print("CELLS AS LIST: ", newcab.root_cell.asList())
@@ -243,30 +250,27 @@ def convert(kcab):
         
     if kcab.ztype.lower() == "243v3":
         newcab = convertBaseCab(kcab, "Offset Vanity 3drw left", False)
-        """cell_list = [ Cell(t='COLUMN',a=None,d=None,ac=None),
-                        [
-                        Cell(t='DRAWER',a=None,d=None,ac='B'),
-                        Cell(t='ROW',a=None,d=cabinet.CellDivider(t=.75, q=2),ac='T'),
-                            [
-                            Cell(t='COLUMN',a=None,d=None,ac='R'),
-                                [
-                                Cell(t='DRAWER',a=None,d=None,ac='B'),
-                                Cell(t='DRAWER',a=None,d=None,ac='BT'),
-                                Cell(t='DRAWER',a=None,d=None,ac='T'),
-                                ],
-                            Cell(t='DOOR',a=None,d=None,ac="L"),
-                            ],
-                        ],
-                    ]"""
         
-        root_cell = Cell(t='COLUMN',a=None,d=None,ac=None)
-        root_cell.addCell(Cell(t='DRAWER',a=None,d=None,ac='B',face=convertFace(kcab.faces[1]) ))
-        root_cell.addCell(Cell(t='ROW',a=None,d=cabinet.CellDivider(t=.75, q=2),ac='T'))
-        root_cell[1].addCell(Cell(t='COLUMN',a=None,d=None,ac='R'))
-        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='B',face=convertFace(kcab.faces[2]) ))
-        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='BT',face=convertFace(kcab.faces[3]) ))
-        root_cell[1][0].addCell(Cell(t='DRAWER',a=None,d=None,ac='T',face=convertFace(kcab.faces[4]) ))
-        root_cell[1].addCell(Cell(t='DOOR',a=None,d=None,ac="L",face=convertFace(kcab.faces[5]) ))
+        s = geometry.Point(kcab.width, kcab.height-kcab.kick_height)
+        root_cell = Cell(celltype='COLUMN',action=None,divider=None,region="TBLR",size=s )
+        
+        s = geometry.Point(s.x, kcab.faces[5].height+kcab.drawer_gap+kcab.bottom_reveal)
+        root_cell.addCell(Cell(celltype='ROW',action=None,divider=cabinet.CellDivider(t=.75, q=2),region='BLR', size=s ))
+        
+        s = geometry.Point(kcab.faces[2].width+kcab.door_gap*.5+kcab.left_reveal, s.y)
+        root_cell[0].addCell(Cell(celltype='COLUMN',action=None,divider=None,region='BL', size=s ))
+        root_cell[0][0].addCell(Cell(celltype='DRAWER',action="PULLOUT",divider=None,region='BL',face=convertFace(kcab.faces[4]), size=geometry.Point(s.x, kcab.faces[2].height+kcab.drawer_gap*.5) ))
+        root_cell[0][0].addCell(Cell(celltype='DRAWER',action="PULLOUT",divider=None,region='L',face=convertFace(kcab.faces[2]), size=geometry.Point(s.x, kcab.faces[2].height+kcab.drawer_gap) ))
+        root_cell[0][0].addCell(Cell(celltype='DRAWER',action="PULLOUT",divider=None,region='L',face=convertFace(kcab.faces[3]), size=geometry.Point(s.x, kcab.faces[2].height+kcab.drawer_gap) ))
+        
+        s = geometry.Point(kcab.width-s.x, s.y)
+        root_cell[0].addCell(Cell(celltype='DOOR',action=None,divider=None,region="BR",face=convertFace(kcab.faces[5]), size=s ))
+        
+        
+        s = geometry.Point(kcab.width, kcab.height-s.y)
+        root_cell.addCell(Cell(celltype='FALSE',action=None,divider=None,region='TLR',face=convertFace(kcab.faces[1]), size=s ))
+        
+        
         
         newcab.root_cell = root_cell
         #print("CELLS AS LIST: ", newcab.root_cell.asList())

@@ -75,6 +75,7 @@ class Joint:
         self.thickness_margin = 0
         self.width_margin = 0
         self.fasteners = 5
+        self.parts=[]
         
     def list_fasteners():
         fl = []
