@@ -239,16 +239,31 @@ def convert(kcab):
         newcab = convertWallCab(kcab, "Wall Cabinet", False)
         
         root_cell = Cell(celltype='COLUMN',action=None,divider=None,region="TBLR",size=geometry.Point(kcab.width, kcab.height) )
-        print(kcab.faces)
-        f = convertFace(kcab.faces[1])
-        root_cell.addCell(Cell(celltype='DOOR',action=None,divider=None,region="TBLR",face=f, size=geometry.Point(kcab.width, kcab.height) ))
+        root_cell.addCell(Cell(celltype='DOOR',action=None,divider=None,region="TBLR",face=convertFace(kcab.faces[1]), size=geometry.Point(kcab.width, kcab.height) ))
         
         newcab.root_cell = root_cell
-        #print("CELLS AS LIST: ", newcab.root_cell.asList())
-        print("CELLS AS LIST: ", newcab.root_cell)
+        
         print("CELL TREE: \n" + newcab.root_cell.printTree())
         
-    if kcab.ztype.lower() == "243v3":
+        
+    elif kcab.ztype == "201":
+        newcab = convertWallCab(kcab, "Base Cabinet", False)
+        
+        s = geometry.Point(kcab.width, kcab.height-kcab.kick_height)
+        root_cell = Cell(celltype='COLUMN',action=None,divider=None,region="TBLR",size=s )
+        f = convertFace(kcab.faces[1])
+        if len(kcab.faces) == 1:
+            root_cell.addCell(Cell(celltype='DOOR',action=None,divider=None,region="TBLR",face=f, size=geometry.Point(kcab.width, kcab.height) ))
+        else:
+            root_cell.addCell(Cell(celltype='DOOR',action=None,divider=None,region="TBLR",face=f, size=geometry.Point(kcab.width, f.height+kcab.drawer_gap*.5) ))
+            root_cell.addCell(Cell(celltype='DRAWER',action=None,divider=None,region="TBLR",face=f, size=geometry.Point(kcab.width, f.height+kcab.drawer_gap*.5) ))
+        
+        newcab.root_cell = root_cell
+        
+        print("CELL TREE: \n" + newcab.root_cell.printTree())
+        
+        
+    elif kcab.ztype.lower() == "243v3":
         newcab = convertBaseCab(kcab, "Offset Vanity 3drw left", False)
         
         s = geometry.Point(kcab.width, kcab.height-kcab.kick_height)
@@ -273,8 +288,7 @@ def convert(kcab):
         
         
         newcab.root_cell = root_cell
-        #print("CELLS AS LIST: ", newcab.root_cell.asList())
-        #print("CELLS AS LIST: ", newcab.root_cell)
+        
         print("CELL TREE: \n" + newcab.root_cell.printTree())
         
         

@@ -1,5 +1,5 @@
 #part_maker.py
-import joinery, hardware, job_settings
+import joinery, excisions, job_settings
 
 def makeParts(cabinets):
     for cabinet in cabinets:
@@ -22,9 +22,10 @@ class Part:
         self.material = None
         self.part_name = "part"
         self.joints = []
-        self.hardware = []
+        self.excisions = []
         self.location = (0,0)
         self.shape = "rectangle"
+        self.anchor = "front" # front, back, middle
         
         
         

@@ -6,7 +6,7 @@ class Library:
         #CORES
         self.Ply = Core()
         self.PB = Core("PB")
-        self.UltraCore = Core("UC")
+        self.UltraCore = Core("UltraCore")
         self.MDF = Core("MDF")
         self.Hardwood = Core("Hardwood")
         
@@ -17,6 +17,15 @@ class Library:
         self.finished_tops = self.finished_ends
         self.finished_backs = self.finished_ends
         self.applied_ends = Material(species, .8125, 48, 96, self.Hardwood)
+        
+        print("CASEWORK: ", self.casework)
+        print("BACKS: ", self.backs)
+        print("FINISHED ENDS: ", self.finished_ends)
+        print("FINISHED BOTTOMS: ", self.finished_bottoms)
+        print("FINISHED TOPS: ", self.finished_tops)
+        print("FINISHED BACKS: ", self.finished_backs)
+        print("APPLIED ENDS: ", self.applied_ends)
+        
 
 
 class Material:
@@ -28,6 +37,9 @@ class Material:
         if core:
             self.core = core
         else: self.core = Core()
+        
+    def __str__(self):
+        return str(self.x) + " x " + str(self.y) + " x " + str(self.thickness) + " " + self.color + " " + self.core.core_name 
         
 class Core:
     def __init__(self, name="Ply"):

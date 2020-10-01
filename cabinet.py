@@ -17,6 +17,7 @@ class Spanner:
         self.placement = Spanner.FRONT
         self.location = 0 #location from bottom of cabinet to center of spanner
         
+        
 # class to represent vertical dividers
 class Divider:
 
@@ -30,7 +31,7 @@ class Divider:
         self.placement = Divider.FRONT
         self.location = 0 #location from left of cabinet to center of divider
         
-        
+
 class Face:
     
     def __init__(self):
@@ -46,6 +47,7 @@ class Face:
             "elevation: " + str(self.elevation) + " " +
             "action: " + str(self.action) + " "
             )
+
 
 class DynamicProperty:
     class Ptype(Enum):

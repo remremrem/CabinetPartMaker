@@ -1,8 +1,19 @@
 #operation.py
 import tool, geometry
 
+
+def dowelHole():
+    return Drill(diameter=.31496, depth=.57) #8mm diameter
+
+def euroHole():
+    return Drill(diameter=.19685, depth=.57) #5mm diameter
+
+def pilotHole():
+    return Drill(diameter=.15748, depth=job_settings.material_thickness + job_settings.pilot_overdrill) #4mm diameter
+
 def listTypes():
     return ["Drill", "Pocket", "InsideContour", "OutsideContour", "Slot"]
+
 
 class Operation:
     def __init__(self, op_type="new_op_type", op_name="new_operation"):
@@ -14,17 +25,39 @@ class Operation:
         
 
 class Pocket(Operation):
-    def __init__(self, width=0, length=0, *args, **kwargs):
+    def __init__(self, width=1, length=1, *args, **kwargs):
         super().__init__(op_type="pocket", *args, **kwargs)
-        self.width = width
-        self.length = length
+        self.size = geometry.Point(width, length)
+        
+    @property
+    def width(self): return self.size.x
+     
+    @property
+    def length(self): return self.size.y
+     
+    @property
+    def x(self): return self.size.x
+     
+    @property
+    def y(self): return self.size.y
 
 
 class Slot(Operation):
-    def __init__(self, width=0, length=0, *args, **kwargs):
+    def __init__(self, width=1, length=1, *args, **kwargs):
         super().__init__(op_type="slot", *args, **kwargs)
-        self.width = width
-        self.length = length
+        self.size = geometry.Point(width, length)
+        
+    @property
+    def width(self): return self.size.x
+     
+    @property
+    def length(self): return self.size.y
+     
+    @property
+    def x(self): return self.size.x
+     
+    @property
+    def y(self): return self.size.y
 
 
 class Drill(Operation):
@@ -33,12 +66,18 @@ class Drill(Operation):
         self.diameter = diameter
 
 
-class InsideContour(Operation):
+class Contour(Operation):
+    def __init__(self, *args, **kwargs):
+        super().__init__(op_type="contour", *args, **kwargs)
+        self.points = []
+
+
+class InsideContour(Contour):
     def __init__(self, *args, **kwargs):
         super().__init__(op_type="inside_contour", *args, **kwargs)
 
 
-class OutsideContour(Operation):
+class OutsideContour(Contour):
     def __init__(self, *args, **kwargs):
         super().__init__(op_type="outside_contour", *args, **kwargs)
 
