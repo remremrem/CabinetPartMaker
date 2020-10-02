@@ -4,6 +4,7 @@ import job_settings
 import geometry
 from enum import Enum
 
+
 # class to represent middle spanners or fixed shelves
 class Spanner:
 
@@ -36,17 +37,38 @@ class Face:
     
     def __init__(self):
         self.elevation = 0
-        self.height = 0
-        self.width = 0
+        self.size = geometry.Point(0,0)
+        self.origin = None
         
     def __str__(self):
         return str("FACE "+
             "height: " + str(self.height) + " " +
             "width: " + str(self.width) + " " +
-            "face_type: " + str(self.face_type) + " " +
-            "elevation: " + str(self.elevation) + " " +
-            "action: " + str(self.action) + " "
+            "origin: " + str(self.origin) + " " +
+            "limit: " + str(self.limit) + " " 
             )
+    
+    @property
+    def height(self):
+        return self.size.y
+    
+    @height.setter
+    def height(self, value):
+        self.size = geometry.Point(self.size.x, value)
+    
+    @property
+    def width(self):
+        return self.size.x
+    
+    @width.setter
+    def width(self, value):
+        self.size = geometry.Point(value, self.size.y)
+    
+    @property
+    def limit(self):
+        if self.origin:
+            return self.origin + geometry.Point(self.width, self.height)
+        else: return None
 
 
 class DynamicProperty:
@@ -76,6 +98,9 @@ class CellDivider:
     def __init__(self, t=.75, q=1):
         self.thickness = t
         self.quantity = q
+        
+    def __str__(self):
+        return "(" + str(self.quantity) + ") " + str(self.thickness)
         
         
 class Cell(list): #these are the cells that make up the "cabinet face grid"
@@ -122,9 +147,10 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
         self.parent = None
         self.region = region
         self.divider = divider
-        self.face = None
+        self.face = face
         self.size = size
         self.depth = depth
+        self.origin = None
         
         
         if celltype:
@@ -146,9 +172,17 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
             
         if not action and celltype == 3:
             self.action = 7
-            
+    
+    @property
+    def limit(self):
+        return self.origin + self.size
+    
+    
     def __str__(self):
-        return str(id(self)) + ", type: " + str(self.cell_type.name) + ", pos: " + str(self.pos) + ", len: " + str(len(self)) + ", size: " + str(self.size)
+        return ( str(id(self)) + ", type: " + str(self.cell_type.name) + ", pos: " + str(self.pos) + 
+                ", len: " + str(len(self)) + ", size: " + str(self.size) + ", divider: " + 
+                str(self.divider) + ", origin: " + str(self.origin) + ",\n" + 
+                "                face: " + str(self.face) + "\n" )
             
     def __repr__(self):
         return self.__str__()
@@ -159,6 +193,37 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
         newcell.pos = len(self)
         self.append(newcell)
     
+    def establishOrigin(self, cabinet, cellcount=0):
+        if not self.parent: #root cell only
+            h = 0 
+            try:
+                h = cabinet.kick_height
+            except:
+                pass
+            self.origin = geometry.Point(0,h)
+            c = 0
+            for each in self:
+                each.establishOrigin(cabinet, c)
+                c+=1
+        else:
+            if cellcount == 0:
+                self.origin = self.parent.origin
+            elif cellcount > 0:
+                if self.parent.cell_type == Cell.CellType['ROW']:
+                    self.origin = geometry.Point(self.parent[cellcount-1].limit.x, self.parent.origin.y)
+                elif self.parent.cell_type == Cell.CellType['COLUMN']:
+                    self.origin = geometry.Point(self.parent.origin.x, self.parent[cellcount-1].limit.y)
+            if self.cell_type.value > 4:
+                c = 0
+                for each in self:
+                    each.establishOrigin(cabinet, c)
+                    c+=1
+        if self.face:
+            if self.origin.x == 0:
+                self.face.origin = geometry.Point(self.origin.x + cabinet.left_reveal , self.face.elevation)
+            else:
+                self.face.origin = geometry.Point(self.origin.x + cabinet.door_gap*.5 , self.face.elevation)
+                    
     def printTree(self, tab=0):
         t=tab
         l = str(" ")*tab + self.__str__() +"\n"

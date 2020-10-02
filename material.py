@@ -10,6 +10,7 @@ class Library:
         self.MDF = Core("MDF")
         self.Hardwood = Core("Hardwood")
         
+        #MATERIALS
         self.casework = Material("PrefinBirch", .7, 48, 96, self.Ply)
         self.backs = Material("PrefinBirch", .2, 48, 96, self.Ply)
         self.finished_ends = Material(species, .73, 48.5, 96.5, self.UltraCore)

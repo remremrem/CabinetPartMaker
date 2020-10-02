@@ -3,22 +3,6 @@
 import operations
 import job_settings
 
-"""drawer_rabbet_depth = .125
-
-drawer_bottom_inset = '10mm'
-
-drawer_bottom_slot_width = .25
-
-back_rabbet_depth = .125
-
-back_inset = .375
-
-spanner_rabbet_depth = .125"""
-
-dowel_hole = operation.Drill(diameter='8mm', depth=.57)
-euro_hole = operation.Drill(diameter='5mm', depth=.57)
-pilot_hole = operation.Drill(diameter='4mm', depth=job_settings.material_thickness)
-
 
 def ScrewJoint(male=None, female=None):
     joint = Joint("butt_screw", male, female)
@@ -69,7 +53,9 @@ class Joint:
         self.width_margin = 0
         self.fasteners = 5
         self.male = male
+        self.male_position = "right"
         self.female = female
+        self.female_position = "inside top"
         
     def list_fasteners():
         fl = []
