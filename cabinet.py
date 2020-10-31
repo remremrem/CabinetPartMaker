@@ -35,10 +35,22 @@ class Divider:
 
 class Face:
     
+    
+    #DOOR SWING (ACTION) ENUMS
+    FIXED = 0
+    SWING_LEFT = 1
+    SWING_RIGHT = 2
+    SWING_PAIR = 3
+    SWING_UP = 4
+    SWING_DOWN = 5
+    PULLOUT = 6
+    TIPOUT = 7
+    
     def __init__(self):
         self.elevation = 0
         self.size = geometry.Point(0,0)
         self.origin = None
+        self.action = 0
         
     def __str__(self):
         return str("FACE "+
@@ -93,14 +105,17 @@ class DynamicProperty:
             return self.d_value
 
 
-# class to represent vertical dividers
+# class to represent cell dividers
 class CellDivider:
-    def __init__(self, t=.75, q=1):
-        self.thickness = t
-        self.quantity = q
+    def __init__(self, material="casework", quantity=1, div_type="divider", position="front", offset=geometry.Point(0,0)):
+        self.material = material 
+        self.quantity = quantity #how many panels are sandwiched together to make this divider
+        self.position = position # front, back, middle
+        self.offset = offset # how far from the front, back or middle is this offest
+        self.div_type = div_type # divider, spanner, strip
         
     def __str__(self):
-        return "(" + str(self.quantity) + ") " + str(self.thickness)
+        return "(" + str(self.quantity) + ") " + str(self.material)
         
         
 class Cell(list): #these are the cells that make up the "cabinet face grid"
