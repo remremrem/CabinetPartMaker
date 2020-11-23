@@ -11,6 +11,9 @@ class JobSettings:
         self.back_material = self.library.backs
         self.finished_back_material = self.library.finished_backs
         self.applied_ends_material = self.library.applied_ends
+        self.drawer_box_material = self.library.casework
+        self.drawer_bottom_material = self.library.backs
+        self.blind_panel_material = self.library.applied_ends
         
         self.hinge_type = "standard"
         self.slide_type = "undermount"

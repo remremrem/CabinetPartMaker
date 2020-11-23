@@ -21,7 +21,8 @@ class Operation:
         self.op_name = op_name
         self.op_type = op_type
         self.tool = tool.Tool()
-        self.location = geometry.Point(0,0)
+        self.origin = geometry.Point(0,0)
+        self.limit = geometry.Point(0,0)
         
 
 class Pocket(Operation):

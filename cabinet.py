@@ -1,41 +1,29 @@
 #cabinet.py
 
-import job_settings
-import geometry
+import job_settings, parts, geometry, joinery
 from enum import Enum
 
 
-# class to represent middle spanners or fixed shelves
-class Spanner:
-
-    #PLACEMENT ENUMS
-    FRONT = 1
-    MID = 2
-    BACK = 3
-
-    def __init__(self):
-        self.depth = 0
-        self.placement = Spanner.FRONT
-        self.location = 0 #location from bottom of cabinet to center of spanner
+# a property that is modified based on the state of other poperties
+class DynamicProperty:
+    PERCENT = 1
+    STATIC = 2
         
+    def __init__(self, d=1, m=1):
+        self.modifier = m
+        self.value= d
+        self.ptype = DynamicProperty.PERCENT
         
-# class to represent vertical dividers
-class Divider:
-
-    #PLACEMENT ENUMS
-    FRONT = 1
-    MID = 2
-    BACK = 3
-
-    def __init__(self):
-        self.depth = 0
-        self.placement = Divider.FRONT
-        self.location = 0 #location from left of cabinet to center of divider
+    @property    
+    def value(self):
+        if self.ptype == DynamicProperty.PERCENT:
+            return self.modifier * self.value
+        elif self.ptype == DynamicProperty.STATIC:
+            return self.value
         
 
 class Face:
-    
-    
+
     #DOOR SWING (ACTION) ENUMS
     FIXED = 0
     SWING_LEFT = 1
@@ -50,7 +38,7 @@ class Face:
         self.elevation = 0
         self.size = geometry.Point(0,0)
         self.origin = None
-        self.action = 0
+        self.action = Face.FIXED
         
     def __str__(self):
         return str("FACE "+
@@ -83,120 +71,80 @@ class Face:
         else: return None
 
 
-class DynamicProperty:
-    class Ptype(Enum):
-        PERCENT = 1
-        STATIC = 2
-        
-    def __init__(self, d=1, m=1):
-        self.modifier = m
-        self.d_value= d
-        self.ptype = self.ptypeEnum('PERCENT')
-        
-    def ptypeEnum(self, t):
-        if t:
-            return self.Ptype[str(t)]
-        
-    @property    
-    def value(self):
-        if self.ptype.value == 1:
-            return self.modifier * self.d_value
-        elif self.ptype.value == 2:
-            return self.d_value
-
-
-# class to represent cell dividers
-class CellDivider:
-    def __init__(self, material="casework", quantity=1, div_type="divider", position="front", offset=geometry.Point(0,0)):
-        self.material = material 
-        self.quantity = quantity #how many panels are sandwiched together to make this divider
-        self.position = position # front, back, middle
-        self.offset = offset # how far from the front, back or middle is this offest
-        self.div_type = div_type # divider, spanner, strip
-        
-    def __str__(self):
-        return "(" + str(self.quantity) + ") " + str(self.material)
-        
-        
 class Cell(list): #these are the cells that make up the "cabinet face grid"
     
-    class Border(Enum): #enums for bordering cell configuration
-        B = 1 #BOTTOM
-        T = 2 #TOP
-        L = 4 #LEFT
-        R = 8 #RIGHT
+    #enums for bordering cell configuration
+    B = 1 #BOTTOM
+    T = 2 #TOP
+    L = 4 #LEFT
+    R = 8 #RIGHT
+    
+    BT = 3
+    BL = 5
+    TL = 6
+    BTL = 7
+    BR = 9
+    TR = 10
+    BTR = 11
+    LR = 12
+    BLR = 13
+    TLR = 14
+    BTLR = 15
         
-        BT = 3
-        BL = 5
-        TL = 6
-        BTL = 7
-        BR = 9
-        TR = 10
-        BTR = 11
-        LR = 12
-        BLR = 13
-        TLR = 14
-        BTLR = 15
-        
-    class CellType(Enum): #CELL TYPE ENUMS
-        OPEN = 1 # unfaced opening in the cabinet
-        DOOR = 2 # opening with a door covering it
-        DRAWER = 3 # opening with a drawer inside it
-        FALSE = 4
-        ROW = 5 # this cell holds a row of other cells
-        COLUMN = 6 # this cell holds a column of other cells
+    #CELL TYPE ENUMS
+    OPEN = 1 # unfaced opening in the cabinet
+    DOOR = 2 # opening with a door covering it
+    DRAWER = 3 # opening with a drawer inside it
+    FALSE = 4
+    BLIND = 5
+    ROW = 6 # this cell holds a row of other cells
+    COLUMN = 7 # this cell holds a column of other cells
+    CELL_TYPE_NAMES = {1:"OPEN", 2:"DOOR", 3:"DRAWER", 4:"FALSE", 5:"BLIND", 6:"ROW", 7:"COLUMN"}
 
-    class CellAction(Enum): #DOOR SWING (ACTION) ENUMS    
-        FIXED = 1
-        SWING_LEFT = 2
-        SWING_RIGHT = 3
-        SWING_PAIR = 4
-        SWING_UP = 5
-        SWING_DOWN = 6
-        PULLOUT = 7
-        TIPOUT = 8
+    #ACTION (DOOR SWING) ENUMS
+    FIXED = 1
+    SWING_LEFT = 2
+    SWING_RIGHT = 3
+    SWING_PAIR = 4
+    SWING_UP = 5
+    SWING_DOWN = 6
+    PULLOUT = 7
+    TIPOUT = 8
+    CELL_ACTION_NAMES = {1:"FIXED", 2:"SWING_LEFT", 3:"SWING_RIGHT", 4:"SWING_PAIR", 5:"SWING_UP", 6:"SWING_DOWN", 7:"PULLOUT", 8:"TIPOUT"}
 
-    def __init__(self, celltype=None, action=None, divider=None, region=None, face=None, size=geometry.Point(1,1), depth=None):
+    def __init__(self, celltype=OPEN, action=None, dividers=[], region=None, face=None, size=geometry.Point(1,1), depth=None):
         super().__init__()
         self.pos = 0
         self.parent = None
         self.region = region
-        self.divider = divider
         self.face = face
         self.size = size
         self.depth = depth
         self.origin = None
-        
-        
-        if celltype:
-            try:
-                self.cell_type = Cell.CellType(int(celltype))
-            except:
-                self.cell_type = Cell.CellType[celltype.upper()]
-        else:
-            print("NO CELL TYPE: ", id(self))
-            self.cell_type = None
-            
-        if action:
-            try:
-                self.action = Cell.CellAction(int(action))
-            except:
-                self.action = Cell.CellAction[action.upper()]
-        else:
-            self.action = None
-            
-        if not action and celltype == 3:
+        self.cell_type = celltype
+        self.action = action
+        if not action and self.cell_type == 3:
             self.action = 7
-    
+        
+        #check if dividers is a list of dividers or just a single divider
+        if hasattr(dividers, '__iter__'): 
+            self.dividers = dividers
+        elif not dividers:
+            self.dividers = []
+        else:
+            self.dividers = [dividers]
+            
+
+
     @property
     def limit(self):
         return self.origin + self.size
     
     
     def __str__(self):
-        return ( str(id(self)) + ", type: " + str(self.cell_type.name) + ", pos: " + str(self.pos) + 
+        return ( str(id(self)) + ", type: " + str(Cell.CELL_TYPE_NAMES[self.cell_type]) + ", pos: " + str(self.pos) + 
                 ", len: " + str(len(self)) + ", size: " + str(self.size) + ", divider: " + 
-                str(self.divider) + ", origin: " + str(self.origin) + ",\n" + 
+                str(self.dividers) + ", origin: " + str(self.origin) + ",\n" + 
                 "                face: " + str(self.face) + "\n" )
             
     def __repr__(self):
@@ -224,11 +172,11 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
             if cellcount == 0:
                 self.origin = self.parent.origin
             elif cellcount > 0:
-                if self.parent.cell_type == Cell.CellType['ROW']:
+                if self.parent.cell_type == Cell.ROW:
                     self.origin = geometry.Point(self.parent[cellcount-1].limit.x, self.parent.origin.y)
-                elif self.parent.cell_type == Cell.CellType['COLUMN']:
+                elif self.parent.cell_type == Cell.COLUMN:
                     self.origin = geometry.Point(self.parent.origin.x, self.parent[cellcount-1].limit.y)
-            if self.cell_type.value > 4:
+            if self.cell_type > 5:
                 c = 0
                 for each in self:
                     each.establishOrigin(cabinet, c)
@@ -242,45 +190,40 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
     def printTree(self, tab=0):
         t=tab
         l = str(" ")*tab + self.__str__() +"\n"
-        if self.cell_type.value > 4:
+        if self.cell_type > 5:
             t+=4
             for each in self:
                 l += each.printTree(t)
         return l
     
-    def addBorder(self, b):
-        if b:
-            try:
-                self.adjacent_cells += int(b)
-            except:
-                try:
-                    self.adjacent_cells += self.CellType[str(b)].value
-                except:
-                    print("Invalid Border Value: ", b + "\n must use one of following values: " + list(self.Border))
+    def makeParts(self, cabinet):
+        count = 0
+        for cell in self:
+            if cell.cell_type == Cell.BLIND:
+                cabinet.addPart(parts.BlindPanel(cell=cell))
+                
+            elif cell.cell_type < 4 or cell.cell_type > 5 :
+                if self.dividers:
+                    if count < len(self)-1:
+                        for d in self.dividers:
+                            div=d
+                            if count > 0:
+                                div = d.copy()
+                            div.border_cells = (self[count], self[count+1])
+                            cabinet.addPart(div)
+                            
+            elif cell.cell_type == Cell.FALSE:
+                if cell.limit.y == cabinet.height:
+                    cabinet.addPart(parts.VerticalFrontSpanner(cell=cell))
+                    cabinet.addPart(parts.VerticalBackSpanner())
                     
-    @staticmethod        
-    def typeEnum(t):
-        if t:
-            try:
-                return Cell.CellType(int(t))
-            except:
-                try:
-                    return Cell.CellType[str(t)]
-                except:
-                    print("Invalid typeEnum Value: ", b + "\n must use one of following values: " + list(Cell.CellType))
-    
-    @staticmethod
-    def actionEnum(a):
-        if a:
-            try:
-                return Cell.CellAction(int(a))
-            except:
-                try:
-                    return Cell.CellAction[str(a)]
-                except:
-                    print("Invalid actionEnum Value: ", b + "\n must use one of following values: " + list(Cell.CellAction))
-
+            if cell.cell_type == Cell.DOOR or cell.cell_type == Cell.DRAWER or cell.cell_type == cell.FALSE:
+                cabinet.addFace(cell.face)
+                
+            cell.makeParts(cabinet)
+            count+=1
         
+
         
 class Cabinet:
     def __init__(self, height=30, depth=12, width=24, unit_num=1, quantity=1, name="newcab"):
@@ -315,23 +258,47 @@ class Cabinet:
         self.parts = []
         self.joints = []
         
+    def addPart(self, part):
+        self.parts.append(part)
+        
+    def addFace(self, face):
+        self.faces.append(face)
+        
+        
 
 
 class WallCabinet(Cabinet):
     # *args and **kwargs automagically pass arguments to parent class
-    def __init__(self, *args, **kwargs):
+    def __init__(self, open_back=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.finished_bottom = False
         self.finished_top = False
         
-    def makeParts(self):
-        pass
+        ls = parts.LeftSide()
+        rs = parts.RightSide()
+        top = parts.Top()
+        joinery.ScrewJoint(top, ls, "ftr", "ftl")
+        joinery.ScrewJoint(top, rs, "ftl", "ftr")
+        bot = parts.Bottom()
+        joinery.ScrewJoint(bot, ls, "fbr", "fbl")
+        joinery.ScrewJoint(bot, rs, "fbl", "fbr")
+        self.addPart(ls)
+        self.addPart(rs)
+        self.addPart(top)
+        self.addPart(bot)
+        if not open_back:
+            back = parts.Back()
+            joinery.Dado(back, ls, "mkl", "mkr", geometry.Point(0,.5))
+            joinery.Dado(back, rs, "mkr", "mkl", geometry.Point(0,.5))
+            joinery.Dado(back, top, "mkt", "mkb", geometry.Point(0,.5))
+            joinery.Dado(back, bot, "mkb", "mkt", geometry.Point(0,.5))
+            self.addPart(back)
         
 
 class BaseCabinet(Cabinet):
     # *args and **kwargs automagically pass arguments to parent class
-    def __init__(self, kick_height=4, kick_depth=2.5, *args, **kwargs):
+    def __init__(self, kick_height=4, kick_depth=2.5, false_front=False, open_back=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.kick_height = kick_height
@@ -339,7 +306,16 @@ class BaseCabinet(Cabinet):
         self.front_strip_depth = 5
         self.back_strip_depth = 5
         
-        self.mid_spanners = []
+        self.addPart(parts.LeftSide())
+        self.addPart(parts.RightSide())
+        self.addPart(parts.Bottom())
+        if kick_height > 0:
+            self.addPart(parts.IntegratedKick())
+        if not open_back:
+            self.addPart(parts.Back())
+        if not false_front:
+            self.addPart(parts.FrontSpanner())
+            self.addPart(parts.BackSpanner())
        
 
 class BaseCorner(BaseCabinet):
@@ -356,12 +332,21 @@ class BaseCorner(BaseCabinet):
 
 class TallCabinet(Cabinet):
     # *args and **kwargs automagically pass arguments to parent class
-    def __init__(self, kick_height=4, kick_depth=2.5, *args, **kwargs):
+    def __init__(self, kick_height=4, kick_depth=2.5, open_back=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.kick_height = kick_height
         self.kick_depth = kick_depth
         self.finished_top = False
+        
+        self.addPart(parts.LeftSide())
+        self.addPart(parts.RightSide())
+        self.addPart(parts.Top())
+        self.addPart(parts.Bottom())
+        if kick_height > 0:
+            self.addPart(parts.IntegratedKick())
+        if not open_back:
+            self.addPart(parts.Back())
 
 
 class TallCorner(TallCabinet):

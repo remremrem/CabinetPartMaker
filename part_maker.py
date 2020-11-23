@@ -2,87 +2,94 @@
 import joinery, excisions, job_settings
 
 
-
-
-
-
-
-
-def HorizontalDivider(n="HorizontalDivider", x, y, material):
-    part = Part(n, x, y, material)
+def HorizontalDivider(n="HorizontalDivider", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def VerticalDivider(n="VerticalDivider", x, y, material):
-    part = Part(n, x, y, material)
+def VerticalDivider(n="VerticalDivider", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def FrontSpanner(n="FrontSpanner", x, y, material):
-    part = Part(n, x, y, material)
+def FrontSpanner(n="FrontSpanner", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def BackSpanner(n="BackSpanner", x, y, material):
-    part = Part(n, x, y, material)
+def BackSpanner(n="BackSpanner", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.BACK):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def SinkFrontSpanner(n="SinkFrontSpanner", x, y, material):
-    part = Part(n, x, y, material)
+def VerticalFrontSpanner(n="VerticalFrontSpanner", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def SinkBackSpanner(n="SinkBackSpanner", x, y, material):
-    part = Part(n, x, y, material
+def VerticalBackSpanner(n="VerticalBackSpanner", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.BACK):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def HingeStrip(n="HingeStrip", x, y, material):
-    part = Part(n, x, y, material)
+def HingeStrip(n="HingeStrip", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def BlindPanel(n="BlindPanel", x, y, material):
-    part = Part(n, x, y, material)
+def BlindPanel(n="BlindPanel", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def ToeKick(n="ToeKick", x, y, material):
-    part = Part(n, x, y, material)
+def IntegratedKick(n="IntegratedKick", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def Shelf(n="Shelf", x, y, material):
-    part = Part(n, x, y, material)
+def Shelf(n="Shelf", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def Bottom(n="Bottom", x, y, material):
-    part = Part(n, x, y, material)
+def AdjustableShelf(n="AdjustableShelf", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def Top(n="Top", x, y, material):
-    part = Part(n, x, y, material)
+def Bottom(n="Bottom", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def LeftSide(n="LeftSide", x, y, material):
-    part = Part(n, x, y, material)
+def Top(n="Top", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def RightSide(n="RightSide", x, y, material):
-    part = Part(n, x, y, material)
+def LeftSide(n="LeftSide", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def Back(n="Back", x, y, material):
-    part = Part(n, x, y, material)
+def RightSide(n="RightSide", x, y, material=job_settings.casework_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def DrawerSide(n="DrawerSide", x, y, material):
-    part = Part(n, x, y, material)
+def Back(n="Back", x, y, material=job_settings.back_material, shape="rectangle", cell=None, anchor=Part.BACK):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def DrawerFront(n="DrawerFront", x, y, material):
-    part = Part(n, x, y, material)
+def DrawerSide(n="DrawerSide", x, y, material=job_settings.drawer_box_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
 
-def DrawerBack(n="DrawerBack", x, y, material):
-    part = Part(n, x, y, material)
+def DrawerFront(n="DrawerFront", x, y, material=job_settings.drawer_box_material, shape="drawer_end_front", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
+    return part
+
+def DrawerBack(n="DrawerBack", x, y, material=job_settings.drawer_box_material, shape="drawer_end_back", cell=None, anchor=Part.BACK):
+    part = Part(n, x, y, m, s, cell, anchor)
+    return part
+
+def DrawerBottom(n="DrawerBottom", x, y, material=job_settings.drawer_bottom_material, shape="rectangle", cell=None, anchor=Part.FRONT):
+    part = Part(n, x, y, m, s, cell, anchor)
     return part
     
         
 class Part:
-    def __init__(self, part_name="newpart", x=0, y=0, material="casework", shape="rectangle"):
+    #DEPTH PLACEMENT ENUMS
+    FRONT = 1
+    MID = 2
+    BACK = 4
+    
+    def __init__(self, part_name="newpart", x=0, y=0, material="casework", shape="rectangle", cell=None, anchor=1):
         self.length = x
         self.width = y
         self.material = material
@@ -90,8 +97,9 @@ class Part:
         self.joints = []
         self.excisions = []
         self.location = (0,0)
-        self.shape = "rectangle"
-        self.anchor = "front" # front, back, middle
+        self.shape = shape # rectangle, drawer_end_front, drawer_end_back, corner_90_left, corner_90_right, corner_90, corner_45
+        self.anchor = anchor
+        self.cell = cell
         
         
         
