@@ -1,7 +1,8 @@
 #cabinet.py
 
-import job_settings, parts, geometry, joinery
+import parts, geometry, joinery, job_settings
 from enum import Enum
+from geometry import Point3 as P3
 
 
 # a property that is modified based on the state of other poperties
@@ -156,7 +157,7 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
         newcell.pos = len(self)
         self.append(newcell)
     
-    def establishOrigin(self, cabinet, cellcount=0):
+    def establishOrigin(self, cabinet, cellcount=0): #only call this function on the root cell. recursion!
         if not self.parent: #root cell only
             h = 0 
             try:
@@ -200,7 +201,13 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
         count = 0
         for cell in self:
             if cell.cell_type == Cell.BLIND:
-                cabinet.addPart(parts.BlindPanel(cell=cell))
+                if cell.origin.x < 1:
+                    part = parts.LeftBlindPanel(x=cabinet.height, y=cell.limit.x, cell=cell)
+                    part.origin = geometry.Point3(cell.origin.x, cell.origin.y, cabinet.depth)
+                else:
+                    part = parts.RightBlindPanel(x=cabinet.height, y=cabinet.width-cell.origin.x, cell=cell)
+                    part.origin = geometry.Point3(cell.limit.x, cell.limit.y, cabinet.depth)
+                cabinet.addPart(part)
                 
             elif cell.cell_type < 4 or cell.cell_type > 5 :
                 if self.dividers:
@@ -214,8 +221,8 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
                             
             elif cell.cell_type == Cell.FALSE:
                 if cell.limit.y == cabinet.height:
-                    cabinet.addPart(parts.VerticalFrontSpanner(cell=cell))
-                    cabinet.addPart(parts.VerticalBackSpanner())
+                    cabinet.addPart(parts.VerticalFrontSpanner(x=cabinet.internal_width, y=cell.origin.y - cabinet.drawer_gap*.5, cell=cell))
+                    cabinet.addPart(parts.VerticalBackSpanner(x=cabinet.internal_width, y=job_settings.vertical_back_spanner_height))
                     
             if cell.cell_type == Cell.DOOR or cell.cell_type == Cell.DRAWER or cell.cell_type == cell.FALSE:
                 cabinet.addFace(cell.face)
@@ -241,6 +248,8 @@ class Cabinet:
         
         self.door_gap = .125
         self.drawer_gap = .125
+        
+        self.kh = None
 
         self.finished_left = False
         self.finished_right = False
@@ -258,11 +267,106 @@ class Cabinet:
         self.parts = []
         self.joints = []
         
+    @property
+    def kick_height(self):
+        if self.kh:
+            return self.kh
+        else:
+            return 0
+    @kick_height.setter
+    def kick_height(self, value):
+        self.kh = value
+        
+    @property
+    def internal_width(self):
+        lw = 0
+        rw = 0
+        ls = self.getPartByName("LeftSide")
+        if ls:
+            lw = ls.thickness
+        rs = self.getPartByName("RightSide")
+        if rs:
+            rw = rs.thickness
+        return self.width - (lw+rw)
+        
+    @property
+    def internal_height(self):
+        tw = 0
+        bw = 0
+        ts = self.getPartByName("Top")
+        if ts:
+            tw = ts.thickness
+        bs = self.getPartByName("Bottom")
+        if bs:
+            bw = bs.thickness
+        return self.height - (tw+bw)
+        
     def addPart(self, part):
         self.parts.append(part)
         
     def addFace(self, face):
         self.faces.append(face)
+        
+    def getPartByName(self, part_name):
+        parts = []
+        for p in self.parts:
+            if p.part_name.lower() == part_name.lower():
+                parts.append(p)
+        if len(parts) == 1:
+            return parts[0]
+        elif len(parts) > 1:
+            return parts
+        else:
+            return False
+        
+        
+    def setPartOrigins(self):
+        # part origin is it's closest point to the cabinet origin, in cabinet coordinates
+        left_thickness = 0
+        leftside = self.getPartByName("LeftSide")
+        if leftside:
+            left_thickness = leftside.thickness
+            
+        bottom_thickness = 0
+        bottom = self.getPartByName("Bottom")
+        if bottom:
+            bottom_thickness = bottom.thickness
+            
+        for p in self.parts:
+            if p.part_name == "RightSide":
+                p.origin = P3(self.width - p.thickness, 0, 0)
+            elif p.part_name == "LeftSide":
+                p.origin = P3(0,0,0)
+            elif p.part_name == "Bottom":
+                p.origin = P3(left_thickness, self.kick_height, 0)
+            elif p.part_name == "Top":
+                p.origin = P3(left_thickness, self.height - p.thickness, 0)
+            elif p.part_name == "Back":
+                p.origin = P3(left_thickness, self.kick_height + bottom_thickness, job_settings.back_inset)
+            elif p.part_name == "FrontSpanner":
+                p.origin = P3(left_thickness, self.height - p.thickness, self.depth - p.size.y)
+            elif p.part_name == "BackSpanner":
+                p.origin = P3(left_thickness, self.height - p.thickness, 0)
+            elif p.part_name == "VerticalFrontSpanner":
+                p.origin = P3(left_thickness, self.height - p.y, self.depth - p.thickness)
+            elif p.part_name == "VerticalBackSpanner":
+                p.origin = P3(left_thickness, self.height - p.y, 0)
+            elif p.part_name == "LeftBlindPanel":
+                p.origin = P3(0, self.kick_height, self.depth - p.thickness)
+            elif p.part_name == "RightBlindPanel":
+                p.origin = P3(self.width - p.y, self.kick_height, self.depth - p.thickness)
+            elif p.part_name == "IntegratedKick":
+                p.origin = P3(left_thickness, self.kick_height - p.y, self.depth - p.thickness)
+            """elif p.part_name == "DrawerFront":
+                p.origin = P3(left_thickness, self.height - p.y, 0)
+            elif p.part_name == "DrawerBack":
+                p.origin = P3(left_thickness, self.height - p.y, 0)
+            elif p.part_name == "DrawerRight":
+                p.origin = P3(left_thickness, self.height - p.y, 0)
+            elif p.part_name == "DrawerLeft":
+                p.origin = P3(left_thickness, self.height - p.y, 0)
+            elif p.part_name == "DrawerBottom":
+                p.origin = P3(left_thickness, self.height - p.y, 0)"""
         
         
 
@@ -275,24 +379,34 @@ class WallCabinet(Cabinet):
         self.finished_bottom = False
         self.finished_top = False
         
-        ls = parts.LeftSide()
-        rs = parts.RightSide()
-        top = parts.Top()
-        joinery.ScrewJoint(top, ls, "ftr", "ftl")
-        joinery.ScrewJoint(top, rs, "ftl", "ftr")
-        bot = parts.Bottom()
-        joinery.ScrewJoint(bot, ls, "fbr", "fbl")
-        joinery.ScrewJoint(bot, rs, "fbl", "fbr")
+        ls = parts.LeftSide(x=self.height, y=self.depth)
+        print("LEFTSIDE!!!!!!!: ", ls, ls.size, self.height, self.depth)
+        rs = parts.RightSide(x=self.height, y=self.depth)        
         self.addPart(ls)
         self.addPart(rs)
+        top = parts.Top(x=self.internal_width, y=self.depth)
+        joinery.ScrewJoint(top, ls, P3(ls.thickness, self.height-top.thickness, 0), P3(ls.thickness, self.height, self.depth))
+        joinery.ScrewJoint(top, rs, P3(self.width-rs.thickness, self.height-top.thickness, 0), P3(self.width-rs.thickness, self.height, self.depth))
+        bot = parts.Bottom(x=self.internal_width, y=self.depth)
+        joinery.ScrewJoint(bot, ls, P3(ls.thickness, self.kick_height, 0), P3(ls.thickness, self.kick_height+bot.thickness, self.depth))
+        joinery.ScrewJoint(bot, rs, P3(self.width-rs.thickness, self.kick_height, 0), P3(self.width-rs.thickness, self.kick_height+bot.thickness, self.depth))
         self.addPart(top)
         self.addPart(bot)
         if not open_back:
-            back = parts.Back()
-            joinery.Dado(back, ls, "mkl", "mkr", geometry.Point(0,.5))
-            joinery.Dado(back, rs, "mkr", "mkl", geometry.Point(0,.5))
-            joinery.Dado(back, top, "mkt", "mkb", geometry.Point(0,.5))
-            joinery.Dado(back, bot, "mkb", "mkt", geometry.Point(0,.5))
+            back = parts.Back(x=self.internal_width, y=self.internal_height)
+            
+            joinery.Dado(back, ls, P3(ls.thickness, self.kick_height+bot.thickness, job_settings.back_inset), 
+                                    P3(ls.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+            
+            joinery.Dado(back, rs, P3(self.width-rs.thickness, self.kick_height+bot.thickness, job_settings.back_inset), 
+                                    P3(self.width-rs.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+            
+            joinery.Dado(back, top, P3(ls.thickness, self.height-top.thickness, job_settings.back_inset), 
+                                    P3(ls.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+            
+            joinery.Dado(back, bot, P3(ls.thickness, self.kick_height+bot.thickness, job_settings.back_inset), 
+                        P3(self.width-rs.thickness, self.kick_height+bot.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+            
             self.addPart(back)
         
 

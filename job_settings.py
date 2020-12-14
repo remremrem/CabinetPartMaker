@@ -1,36 +1,36 @@
 # job_settings.py
 import material
 
-class JobSettings:
-    def __init__(self):
-        self.library = material.Library()
-        self.casework_material = self.library.casework
-        self.finished_end_material = self.library.finished_ends
-        self.finished_bottom_material = self.library.finished_bottoms
-        self.finished_top_material = self.library.finished_tops
-        self.back_material = self.library.backs
-        self.finished_back_material = self.library.finished_backs
-        self.applied_ends_material = self.library.applied_ends
-        self.drawer_box_material = self.library.casework
-        self.drawer_bottom_material = self.library.backs
-        self.blind_panel_material = self.library.applied_ends
-        
-        self.hinge_type = "standard"
-        self.slide_type = "undermount"
-        self.kick_type = "integrated"
-        
-        self.drawer_rabbet_depth = .125 # how deep to rabbet drawer sides for front/back/solid bottom
+library = material.Library()
+casework_material = library.casework
+finished_end_material = library.finished_ends
+finished_bottom_material = library.finished_bottoms
+finished_top_material = library.finished_tops
+back_material = library.backs
+finished_back_material = library.finished_backs
+applied_ends_material = library.applied_ends
+drawer_box_material = library.casework
+drawer_bottom_material = library.backs
+blind_panel_material = library.applied_ends
 
-        self.drawer_bottom_inset = .3937 # how far from bottom of drawer side to bottom of drawer bottom
+hinge_type = "standard"
+slide_type = "undermount"
+kick_type = "integrated"
 
-        self.drawer_bottom_slot_width = .25 #how wide is the dado slot for drawer bottoms
+drawer_rabbet_depth = .125 # how deep to rabbet drawer sides for front/back/solid bottom
 
-        self.back_rabbet_depth = .125 #how deep to rabbet the back into the sides/top/bottom of cabinet
+drawer_bottom_inset = .3937 # how far from bottom of drawer side to bottom of drawer bottom
 
-        self.back_inset = .375 # how far from the back of the cabinet side to the back of the cabinet back
+drawer_bottom_slot_width = .25 #how wide is the dado slot for drawer bottoms
 
-        self.spanner_rabbet_depth = .125 #how deep a cabinet spanner should stick into a rabbet
-        
-        self.pilot_overdrill = .12 #how much deeper to drill a tapered pilot bit into spoilboard
+back_rabbet_depth = .125 #how deep to rabbet the back into the sides/top/bottom of cabinet
+
+back_inset = .375 # how far from the back of the cabinet side to the back of the cabinet back
+
+spanner_rabbet_depth = .125 #how deep a cabinet spanner should stick into a rabbet
+
+pilot_overdrill = .12 #how much deeper to drill a tapered pilot bit into spoilboard
+
+vertical_back_spanner_height = 5.5
         
         

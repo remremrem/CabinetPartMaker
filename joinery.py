@@ -1,13 +1,10 @@
 # joinery.py
+from geometry import Point3 as P3
 
-import operation
-import job_settings
-
-
-def ScrewJoint(male=None, female=None, mp="trf", fp="r", mo=None):
+def ScrewJoint(male=None, female=None, origin=None, limit=None, mo=None):
     joint = Joint("butt_screw", male, female)
-    joint.female_position = mp
-    joint.female_position = fp
+    joint.origin = origin
+    joint.limit = limit
     joint.male_offset = mo
     male.joints.append(joint)
     female.joints.append(joint)
@@ -16,7 +13,7 @@ def ScrewJoint(male=None, female=None, mp="trf", fp="r", mo=None):
 def DowelJoint(male=None, female=None, mp="trf", fp="r", mo=None):
     joint = Joint("butt_dowel", male, female)
     joint.fasteners = 10
-    joint.female_position = mp
+    joint.male_position = mp
     joint.female_position = fp
     joint.male_offset = mo
     male.joints.append(joint)
@@ -32,7 +29,7 @@ def Rabbet(male=None, female=None, mp="trf", fp="r", mo=None):
     joint.thickness_margin = .015
     joint.width_margin = .015
     joint.fasteners = 6
-    joint.female_position = mp
+    joint.male_position = mp
     joint.female_position = fp
     joint.male_offset = mo
     male.joints.append(joint)
@@ -49,14 +46,14 @@ def HalfBlindRabbet(male=None, female=None, mp="trf", fp="r", mo=None):
     joint.width_margin = .015
     joint.fasteners = 6
     joint.blind_reveal = 1
-    joint.female_position = mp
+    joint.male_position = mp
     joint.female_position = fp
     joint.male_offset = mo
     male.joints.append(joint)
     female.joints.append(joint)
     return joint
 
-def Dado(male=None, female=None, mp="trf", fp="r", mo=None):
+def Dado(male=None, female=None, origin=None, limit=None, mo=None, inset=0, tf="inside"):
     joint = Joint("dado", male, female)
     joint.tenon_depth = 0
     joint.tenon_thickness = male.material.thickness
@@ -65,14 +62,16 @@ def Dado(male=None, female=None, mp="trf", fp="r", mo=None):
     joint.thickness_margin = .015
     joint.width_margin = .015
     joint.fasteners = 2
-    joint.female_position = mp
-    joint.female_position = fp
+    joint.origin = origin
+    joint.limit = limit
     joint.male_offset = mo
+    joint.inset = inset
+    joint.tab_face = tf
     male.joints.append(joint)
     female.joints.append(joint)
     return joint
 
-def BlindDado(male=None, female=None, mp="trf", fp="r", mo=None):
+def BlindDado(male=None, female=None, mp="trf", fp="r", mo=None, inset=0, tf="inside"):
     joint = Joint("blind_dado", male, female)
     joint.tenon_depth = 0
     joint.tenon_thickness = male.material.thickness
@@ -82,9 +81,11 @@ def BlindDado(male=None, female=None, mp="trf", fp="r", mo=None):
     joint.width_margin = .015
     joint.fasteners = 2
     joint.blind_reveal = 1
-    joint.female_position = mp
+    joint.male_position = mp
     joint.female_position = fp
     joint.male_offset = mo
+    joint.inset = inset
+    joint.tab_face = tf
     male.joints.append(joint)
     female.joints.append(joint)
     return joint
@@ -98,7 +99,7 @@ class Joint:
     PINNAILS = 4
     DOWELS = 8
     
-    def __init__(self, joint_name="butt", male=None, female=None, mp="trf", fp="r"):
+    def __init__(self, joint_name="butt", male=None, female=None, origin=None, limit=None, inset=0, tf="inside"):
         self.tenon_depth = 0
         self.tenon_thickness = 0
         self.tenon_width = 0
@@ -106,12 +107,30 @@ class Joint:
         self.thickness_margin = 0 # how much thinner is the tenon compared to the mortis
         self.width_margin = 0 # how much narrower is the tenon compared to the mortis
         self.blind_reveal = 0 # how far from the edge of the part to the start of the joint on blind/half-blind joints
+        self.inset = inset # how far inset to the center of a dado or slot
+        self.tab_face = tf # if the male part needs a tab is the tab on the inside or outside of the part
         self.fasteners = 5
         self.male = male # which cabinet part is the "male" member of this joint
-        self.male_position = mp # where the male part is positioned on the female part
+        #self.male_position = mp # where the male part is positioned on the female part
         self.male_offset = None # geometry.Point() offset for adjusting the male piece in relation to the female
         self.female = female # which cabinet part is the "female" member of this joint
-        self.female_position = fp # where the female part is positioned on the male part
+        #self.female_position = fp # where the female part is positioned on the male part
+        self.origin = origin
+        self.limit = limit
+        self.joint_name = joint_name
+        
+    @property
+    def width(self):
+        if self.origin and self.limit:
+            return sorted((self.limit - self.origin).values)[1]
+        else: return None
+        
+    @property
+    def length(self):
+        if self.origin and self.limit:
+            return sorted((self.limit - self.origin).values)[2]
+        else: return None
+        
         
     def list_fasteners():
         fl = []
@@ -128,4 +147,8 @@ class Joint:
         if f >= 1:
             fl.append("screws")
             f -= 1
+            
+    
+    def __str__(self):
+        return "Joint(name: {0}, origin: {1}, limit: {2}, width: {3}, length: {4}, male: {5}, female: {6})".format(self.joint_name, self.origin, self.limit, self.width, self.length, self.male.part_name, self.female.part_name)
 

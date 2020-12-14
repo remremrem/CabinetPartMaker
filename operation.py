@@ -1,5 +1,5 @@
 #operation.py
-import tool, geometry
+import tool, geometry, job_settings
 
 
 def dowelHole():
@@ -9,7 +9,7 @@ def euroHole():
     return Drill(diameter=.19685, depth=.57) #5mm diameter
 
 def pilotHole():
-    return Drill(diameter=.15748, depth=job_settings.material_thickness + job_settings.pilot_overdrill) #4mm diameter
+    return Drill(diameter=.15748, depth=job_settings.casework_material.thickness + job_settings.pilot_overdrill) #4mm diameter
 
 def listTypes():
     return ["Drill", "Pocket", "InsideContour", "OutsideContour", "Slot"]
