@@ -46,7 +46,7 @@ class Part:
         
     def jointsInPartCoords(self):
         for joint in self.joints:
-            print("Joint name: {0}, origin: {1}, limit: {2}, male: {3}, female: {4}".format(joint.joint_name, coordinates.cabCoordToPartCoord(self, joint.origin), coordinates.cabCoordToPartCoord(self, joint.limit), joint.male.part_name, joint.female.part_name))
+            print("Part name: {5}, Joint name: {0}, origin: {1}, limit: {2}, male: {3}, female: {4}".format(joint.joint_name, coordinates.cabCoordToPartCoord(self, joint.origin), coordinates.cabCoordToPartCoord(self, joint.limit), joint.male.part_name, joint.female.part_name, self.part_name))
         
     def orient(self):
         if self.facing == Part.FRONT:

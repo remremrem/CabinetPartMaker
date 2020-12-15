@@ -122,16 +122,32 @@ class Joint:
     @property
     def width(self):
         if self.origin and self.limit:
-            return sorted((self.limit - self.origin).values)[1]
+            return sorted((self.limit - self.origin).values)[1][0]
+        else: return None
+        
+    @property
+    def width_axis(self): #axis of the width (thickness) of this joint on the cabinet
+        if self.origin and self.limit:
+            return sorted((self.limit - self.origin).values)[1][1]
         else: return None
         
     @property
     def length(self):
         if self.origin and self.limit:
-            return sorted((self.limit - self.origin).values)[2]
+            return sorted((self.limit - self.origin).values)[2][0]
         else: return None
         
+    @property
+    def length_axis(self): #axis of the length of this joint on the cabinet
+        if self.origin and self.limit:
+            return sorted((self.limit - self.origin).values)[2][1]
+        else: return None
         
+    @property
+    def center(self):
+        return self.origin + ((self.limit - self.origin) * .5)
+        
+
     def list_fasteners():
         fl = []
         f = self.fasteners
@@ -150,5 +166,6 @@ class Joint:
             
     
     def __str__(self):
-        return "Joint(name: {0}, origin: {1}, limit: {2}, width: {3}, length: {4}, male: {5}, female: {6})".format(self.joint_name, self.origin, self.limit, self.width, self.length, self.male.part_name, self.female.part_name)
+        s = "Joint(name: {0}, origin: {1}, limit: {2}, center: {7}, width: {3}, length: {4}, male: {5}, female: {6})"
+        return s.format(self.joint_name, self.origin, self.limit, self.width, self.length, self.male.part_name, self.female.part_name, self.center)
 

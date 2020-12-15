@@ -40,7 +40,7 @@ class Point:
     
     @property
     def values(self):
-        return [self.x, self.y]
+        return [(self.x, "x"), (self.y, "y")]
         
     def __str__(self):
         return "Point({0}, {1})".format(self.x, self.y)
@@ -81,7 +81,7 @@ class Point3:
     
     @property
     def values(self):
-        return [self.x, self.y, self.z]
+        return [(self.x, "x"), (self.y, "y"), (self.z, "z")]
         
     def __str__(self):
         return "Point3({0}, {1}, {2})".format(round(self.x, 5), round(self.y, 5), round(self.z, 5))
