@@ -402,7 +402,7 @@ class WallCabinet(Cabinet):
                                     P3(self.width-rs.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
             
             joinery.Dado(back, top, P3(ls.thickness, self.height-top.thickness, job_settings.back_inset), 
-                                    P3(ls.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+                                    P3(self.width-rs.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
             
             joinery.Dado(back, bot, P3(ls.thickness, self.kick_height+bot.thickness, job_settings.back_inset), 
                         P3(self.width-rs.thickness, self.kick_height+bot.thickness, job_settings.back_inset+job_settings.back_material.thickness))

@@ -27,7 +27,9 @@ cabinet_right = P3(1,0,0)
 cabinet_top = P3(0,1,0)
 cabinet_bottom = P3(0,-1,0)
 
-def cabinetAxisToPartAxis(axis, part):
+def cabinetAxisToPartAxis(axis, part): #axis is a char in "xyzXYZ" or a Point3. part is a Part object
+    global X,Y,Z
+    cabinet_axis = axis
     if axis == "x" or axis == "X":
         cabinet_axis = X
     elif axis == "y" or axis == "Y":
@@ -40,21 +42,21 @@ def cabinetAxisToPartAxis(axis, part):
         if cabinet_axis == X:
             part_axis = Z
         elif cabinet_axis == Y:
-            part_axis = X
+            part_axis = X*-1
         elif cabinet_axis == Z:
             part_axis = Y
             
     if part.facing == part.RIGHT:
         if cabinet_axis == X:
-            part_axis = -Z
+            part_axis = Z*-1
         elif cabinet_axis == Y:
-            part_axis = -X
+            part_axis = X
         elif cabinet_axis == Z:
             part_axis = Y
             
     elif part.facing == part.TOP:
         if cabinet_axis == X:
-            part_axis = -X
+            part_axis = X*-1
         elif cabinet_axis == Y:
             part_axis = Z
         elif cabinet_axis == Z:
@@ -64,17 +66,17 @@ def cabinetAxisToPartAxis(axis, part):
         if cabinet_axis == X:
             part_axis = X
         elif cabinet_axis == Y:
-            part_axis = -Z
+            part_axis = Z*-1
         elif cabinet_axis == Z:
             part_axis = Y
             
     elif part.facing == part.BACK:
         if cabinet_axis == X:
-            part_axis = -X
+            part_axis = X*-1
         elif cabinet_axis == Y:
             part_axis = Y
         elif cabinet_axis == Z:
-            part_axis = -Z
+            part_axis = Z*-1
             
     elif part.facing == part.FRONT:
         part_axis = cabinet_axis

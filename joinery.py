@@ -1,5 +1,6 @@
 # joinery.py
 from geometry import Point3 as P3
+import coordinates
 
 def ScrewJoint(male=None, female=None, origin=None, limit=None, mo=None):
     joint = Joint("butt_screw", male, female)
@@ -99,6 +100,9 @@ class Joint:
     PINNAILS = 4
     DOWELS = 8
     
+    #male = male Part object, female = female Part object 
+    #origin = closest point to cabinet origin in the cross-section of where the female and male parts intersect
+    #limit = farthest point from cabinet origin in the cross-section of where the female and male parts intersect
     def __init__(self, joint_name="butt", male=None, female=None, origin=None, limit=None, inset=0, tf="inside"):
         self.tenon_depth = 0
         self.tenon_thickness = 0
@@ -130,6 +134,14 @@ class Joint:
         if self.origin and self.limit:
             return sorted((self.limit - self.origin).values)[1][1]
         else: return None
+    
+    @property
+    def width_axis_male(self):
+        return coordinates.cabinetAxisToPartAxis(self.width_axis(), self.male)
+    
+    @property
+    def width_axis_female(self):
+        return coordinates.cabinetAxisToPartAxis(self.width_axis(), self.female)
         
     @property
     def length(self):
@@ -142,6 +154,14 @@ class Joint:
         if self.origin and self.limit:
             return sorted((self.limit - self.origin).values)[2][1]
         else: return None
+    
+    @property
+    def length_axis_male(self):
+        return coordinates.cabinetAxisToPartAxis(self.length_axis, self.male)
+    
+    @property
+    def length_axis_female(self):
+        return coordinates.cabinetAxisToPartAxis(self.length_axis, self.female)
         
     @property
     def center(self):
@@ -166,6 +186,6 @@ class Joint:
             
     
     def __str__(self):
-        s = "Joint(name: {0}, origin: {1}, limit: {2}, center: {7}, width: {3}, length: {4}, male: {5}, female: {6})"
-        return s.format(self.joint_name, self.origin, self.limit, self.width, self.length, self.male.part_name, self.female.part_name, self.center)
+        s = "Joint(name: {0}, origin: {1}, limit: {2}, center: {7}, width: {3}, length: {4}, \n         male: {5}, female: {6}, length_axis: {8}, length_axis_male: {9}, length_axis_female: {10})"
+        return s.format(self.joint_name, self.origin, self.limit, self.width, self.length, self.male.part_name, self.female.part_name, self.center, self.length_axis, self.length_axis_male, self.length_axis_female)
 
