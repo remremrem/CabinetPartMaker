@@ -3,13 +3,13 @@ import tool, geometry, job_settings
 
 
 def dowelHole():
-    return Drill(diameter=.31496, depth=.57) #8mm diameter
+    return Drill(op_name="dowel_hole", diameter=.31496, depth=.57) #8mm diameter
 
 def euroHole():
-    return Drill(diameter=.19685, depth=.57) #5mm diameter
+    return Drill(op_name="euro_hole", diameter=.19685, depth=.57) #5mm diameter
 
 def pilotHole():
-    return Drill(diameter=.15748, depth=job_settings.casework_material.thickness + job_settings.pilot_overdrill) #4mm diameter
+    return Drill(op_name="pilot_hole", diameter=.15748, depth=job_settings.casework_material.thickness + job_settings.pilot_overdrill) #4mm diameter
 
 def listTypes():
     return ["Drill", "Pocket", "InsideContour", "OutsideContour", "Slot"]
