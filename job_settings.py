@@ -30,6 +30,10 @@ back_inset = .375 # how far from the back of the cabinet side to the back of the
 spanner_rabbet_depth = .125 #how deep a cabinet spanner should stick into a rabbet
 
 pilot_overdrill = .12 #how much deeper to drill a tapered pilot bit into spoilboard
+pilot_distance_from_edge = 2.0 #how far from end of joint to pilot hole
+pilot_min_distance_from_edge = 1.25 #how far from end of joint to pilot hole in extreme case
+pilot_max_spacing = 6 # maximum distance between pilot holes
+pilot_min_spacing = 2.5 # minimum distance between pilot holes
 
 vertical_back_spanner_height = 5.5
         

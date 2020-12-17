@@ -8,21 +8,24 @@ def dowelHole():
 def euroHole():
     return Drill(op_name="euro_hole", diameter=.19685, depth=.57) #5mm diameter
 
-def pilotHole():
-    return Drill(op_name="pilot_hole", diameter=.15748, depth=job_settings.casework_material.thickness + job_settings.pilot_overdrill) #4mm diameter
+def pilotHole(origin=geometry.Point(0,0)):
+    return Drill(op_name="pilot_hole", origin=origin, diameter=.15748, depth=job_settings.casework_material.thickness + job_settings.pilot_overdrill) #4mm diameter
 
 def listTypes():
     return ["Drill", "Pocket", "InsideContour", "OutsideContour", "Slot"]
 
 
 class Operation:
-    def __init__(self, op_type="new_op_type", op_name="new_operation"):
-        self.depth = 0
+    def __init__(self, op_type="new_op_type", op_name="new_operation", depth=0, origin=geometry.Point(0,0), limit=geometry.Point(0,0)):
+        self.depth = depth
         self.op_name = op_name
         self.op_type = op_type
         self.tool = tool.Tool()
-        self.origin = geometry.Point(0,0)
-        self.limit = geometry.Point(0,0)
+        self.origin = origin
+        self.limit = limit
+        
+    def __str__(self):
+        return "Operation(name: {0}, origin: {1}, limit: {2}, depth: {3})".format(self.op_name, self.origin, self.limit, self.depth)
         
 
 class Pocket(Operation):

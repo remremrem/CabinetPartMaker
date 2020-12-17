@@ -84,7 +84,7 @@ def cabinetAxisToPartAxis(axis, part): #axis is a char in "xyzXYZ" or a Point3. 
            
 
 
-def partCoordToCabCoord(part, coords):
+def partToCab(part, coords):
     def changeCoordSys(part, c):
         new_position = P3(0,0,0)
         if part_sys == P3(-1,0,0): #left facing
@@ -121,7 +121,7 @@ def partCoordToCabCoord(part, coords):
     return cabinet_coordinates
         
 
-def cabCoordToPartCoord(part, coords):
+def cabToPart(part, coords):
     if not coords or not part.origin:
         return None
     c = coords - part.origin

@@ -43,10 +43,11 @@ class Part:
         self.f = None #front
         self.orient()
         self.origin = origin  # part origin is the part's closest point to the cabinet origin, in cabinet coordinates
+        self.operations = [] # a list of all operations machined on this part
         
     def jointsInPartCoords(self):
         for joint in self.joints:
-            print("Part name: {5}, Joint name: {0}, origin: {1}, limit: {2}, male: {3}, female: {4}".format(joint.joint_name, coordinates.cabCoordToPartCoord(self, joint.origin), coordinates.cabCoordToPartCoord(self, joint.limit), joint.male.part_name, joint.female.part_name, self.part_name))
+            print("Part name: {5}, Joint name: {0}, origin: {1}, limit: {2}, male: {3}, female: {4}".format(joint.joint_name, coordinates.cabToPart(self, joint.origin), coordinates.cabToPart(self, joint.limit), joint.male.part_name, joint.female.part_name, self.part_name))
         
     def orient(self):
         if self.facing == Part.FRONT:

@@ -1,6 +1,7 @@
 # joinery.py
 from geometry import Point3 as P3
-import coordinates
+import job_settings as JS
+import coordinates, operation
 
 def ScrewJoint(male=None, female=None, origin=None, limit=None, mo=None):
     joint = Joint("butt_screw", male, female)
@@ -9,6 +10,43 @@ def ScrewJoint(male=None, female=None, origin=None, limit=None, mo=None):
     joint.male_offset = mo
     male.joints.append(joint)
     female.joints.append(joint)
+    pilot_holes = []
+    minimum_joint_length = JS.pilot_min_distance_from_edge*2
+    minimum_standard_joint_length = JS.pilot_distance_from_edge*2 + JS.pilot_min_spacing
+    length = joint.length
+    if length < minimum_joint_length:
+        return joint
+    if length < minimum_standard_joint_length:
+        pattern_length = length - JS.pilot_min_distance_from_edge*2
+        if pattern_length < JS.pilot_min_distance_from_edge*2 + JS.pilot_min_spacing:
+            pilot_holes.append(JS.pilot_min_distance_from_edge + pattern_length*.5)
+        else:
+            num_holes = int(pattern_length / JS.pilot_min_spacing)
+            spacing = float(pattern_length) / (num_holes - 1)
+            location = JS.pilot_min_distance_from_edge
+            while num_holes > 0:
+                pilot_holes.append(location)
+                location += spacing
+                num_holes -= 1
+    else:
+        pattern_length = length - JS.pilot_distance_from_edge*2
+        if pattern_length < JS.pilot_distance_from_edge*2 + JS.pilot_min_spacing:
+            pilot_holes.append(JS.pilot_distance_from_edge + pattern_length*.5)
+        else:
+            num_holes = int(pattern_length / JS.pilot_max_spacing) + 2
+            spacing = float(pattern_length) / (num_holes - 1)
+            location = JS.pilot_distance_from_edge
+            while num_holes > 0:
+                pilot_holes.append(location)
+                location += spacing
+                num_holes -= 1
+    if len(pilot_holes) > 0:
+        print("FUCK", joint.origin, joint.width_axis, joint.width, pilot_holes, length, pattern_length)
+        start_point = (joint.origin + (joint.width_axis * (joint.width * .5)))
+        for hole in pilot_holes:
+            pilot_coordinates = start_point + (joint.length_axis * hole)
+            joint.female.operations.append(operation.pilotHole(origin=coordinates.cabToPart(joint.female, pilot_coordinates)))
+            
     return joint
 
 def DowelJoint(male=None, female=None, mp="trf", fp="r", mo=None):
@@ -122,6 +160,7 @@ class Joint:
         self.origin = origin
         self.limit = limit
         self.joint_name = joint_name
+        self.operations = [] # a list of operations that make this joint
         
     @property
     def width(self):
@@ -132,7 +171,13 @@ class Joint:
     @property
     def width_axis(self): #axis of the width (thickness) of this joint on the cabinet
         if self.origin and self.limit:
-            return sorted((self.limit - self.origin).values)[1][1]
+            wa = sorted((self.limit - self.origin).values)[1][1]
+            if wa == "x":
+                return coordinates.X
+            elif wa == "y":
+                return coordinates.Y
+            elif wa == "z":
+                return coordinates.Z
         else: return None
     
     @property
@@ -152,7 +197,13 @@ class Joint:
     @property
     def length_axis(self): #axis of the length of this joint on the cabinet
         if self.origin and self.limit:
-            return sorted((self.limit - self.origin).values)[2][1]
+            wa = sorted((self.limit - self.origin).values)[2][1]
+            if wa == "x":
+                return coordinates.X
+            elif wa == "y":
+                return coordinates.Y
+            elif wa == "z":
+                return coordinates.Z
         else: return None
     
     @property

@@ -252,8 +252,8 @@ def convert(kcab):
         print("CABINET PARTS: ")
         for each in newcab.parts:
             print("name: ", each.part_name, "origin: ", each.origin, "part_size:", each.size, "cabinet_size: ", coordinates.partSizeToCabinet(each))
-            for j in each.joints:
-                print(j)
+            for op in each.operations:
+                print(op)
             each.jointsInPartCoords()
         for each in newcab.faces:
             print(each)
