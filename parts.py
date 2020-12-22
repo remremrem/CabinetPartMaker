@@ -1,6 +1,6 @@
 #parts.py
 import joinery, excisions, job_settings, geometry, coordinates
-from geometry import Point3 as P3
+from geometry import Point as P3
         
 class Part:
     #ANCHOR (PLACEMENT) ENUMS
@@ -22,19 +22,23 @@ class Part:
     RIGHT = 32
     FACING_ENUMS = {1:"FRONT", 2:"TOP", 4:"BACK", 8:"BOTTOM", 16:"LEFT", 32:"RIGHT", }
     
-    def __init__(self, part_name="newpart", material=job_settings.casework_material, shape="rectangle", cell=None, anchor=1, facing=2, origin=P3(0,0,0), x=0, y=0, anchor_adjust=0):
+    def __init__(self, part_name="newpart", material=job_settings.casework_material, shape="rectangle", cell=None, 
+                    anchor=1, facing=2, origin=P3(0,0,0), x=0, y=0, anchor_adjust=0):
         self.size = P3(x, y, material.thickness)
         self._material = material
         self.part_name = part_name
         self.joints = []
         self.excisions = []
         self.facing = facing
-        self.anchor_adjust = anchor_adjust
         self.location = (0,0)
         self.shape = shape # rectangle, drawer_end_front, drawer_end_back, corner_90_left, corner_90_right, corner_90, corner_45
         self.anchor = anchor
+        self.anchor_adjust = anchor_adjust
         self.cell = cell
         self.border_cells = (None, None)
+        self.origin = origin  # part origin is the part's closest point to the cabinet origin, in cabinet coordinates
+        self.operations = [] # a list of all operations machined on this part
+        self.cabinet = None # this gets a value in Cabinet.addPart() method
         self.t = None #top
         self.b = None #bottom
         self.l = None #left
@@ -42,59 +46,7 @@ class Part:
         self.k = None #back
         self.f = None #front
         self.orient()
-        self.origin = origin  # part origin is the part's closest point to the cabinet origin, in cabinet coordinates
-        self.operations = [] # a list of all operations machined on this part
-        
-    def jointsInPartCoords(self):
-        for joint in self.joints:
-            print("Part name: {5}, Joint name: {0}, origin: {1}, limit: {2}, male: {3}, female: {4}".format(joint.joint_name, coordinates.cabToPart(self, joint.origin), coordinates.cabToPart(self, joint.limit), joint.male.part_name, joint.female.part_name, self.part_name))
-        
-    def orient(self):
-        if self.facing == Part.FRONT:
-            self.t = P3(0,1,0)
-            self.b = P3(0,-1,0)
-            self.l = P3(-1,0,0)
-            self.r = P3(1,0,0)
-            self.f = P3(0,0,1)
-            self.k = P3(0,0,-1)
-        elif self.facing == Part.BACK:
-            self.t = P3(0,1,0)
-            self.b = P3(0,-1,0)
-            self.l = P3(-1,0,0)
-            self.r = P3(1,0,0)
-            self.f = P3(0,0,1)
-            self.k = P3(0,0,-1)
-        elif self.facing == Part.TOP:
-            self.t = P3(0,1,0)
-            self.b = P3(0,-1,0)
-            self.l = P3(-1,0,0)
-            self.r = P3(1,0,0)
-            self.f = P3(0,0,1)
-            self.k = P3(0,0,-1)
-        elif self.facing == Part.BOTTOM:
-            self.t = P3(0,1,0)
-            self.b = P3(0,-1,0)
-            self.l = P3(-1,0,0)
-            self.r = P3(1,0,0)
-            self.f = P3(0,0,1)
-            self.k = P3(0,0,-1)
-        elif self.facing == Part.LEFT:
-            self.t = P3(0,1,0)
-            self.b = P3(0,-1,0)
-            self.l = P3(-1,0,0)
-            self.r = P3(1,0,0)
-            self.f = P3(0,0,1)
-            self.k = P3(0,0,-1)
-        elif self.facing == Part.RIGHT:
-            self.t = P3(0,1,0)
-            self.b = P3(0,-1,0)
-            self.l = P3(-1,0,0)
-            self.r = P3(1,0,0)
-            self.f = P3(0,0,1)
-            self.k = P3(0,0,-1)
-        
-        
-      
+
     @property
     def x(self):
         return self.size.x
@@ -147,6 +99,99 @@ class Part:
     def volume(self):
         return self.length * self.width * self.thickness
     
+    @property
+    def facing_axis(self):
+        if self.facing == self.FRONT:
+            return coordinates.Z
+        elif self.facing == self.BACK:
+            return coordinates.Z*-1
+        elif self.facing == self.LEFT:
+            return coordinates.X*-1
+        elif self.facing == self.RIGHT:
+            return coordinates.X
+        elif self.facing == self.TOP:
+            return coordinates.Y
+        elif self.facing == self.BOTTOM:
+            return coordinates.Y*-1
+    
+    def addOperation(self, op):
+        self.operations.append(op)
+    
+    def finalize(self):
+        for joint in self.joints:
+            if joint.joint_name == "back_dado":
+                if joint.male == self:
+                    print("DEPTH AXIS MALE: ", joint.depth_axis_male, coordinates.X)
+                    if joint.depth_axis_male == coordinates.X:
+                        if coordinates.cabToPart(self, joint.origin).x < 1:
+                            self.extend(coordinates.X*-1, joint.tenon_depth)
+                        else:
+                            self.extend(coordinates.X, joint.tenon_depth)
+                    elif joint.depth_axis_male == coordinates.Y:
+                        if coordinates.cabToPart(self, joint.origin).y < 1:
+                            self.extend(coordinates.Y*-1, joint.tenon_depth)
+                        else:
+                            self.extend(coordinates.Y, joint.tenon_depth)
+
+    
+    def extend(self, axis, distance):
+        if axis == (coordinates.X*-1):
+            self.x = self.x + distance
+        elif axis == (coordinates.X):
+            self.x = self.x + distance
+        elif axis == (coordinates.Y*-1):
+            self.y = self.y + distance
+        elif axis == (coordinates.Y):
+            self.y = self.y + distance
+            
+    def jointsInPartCoords(self): # a temporary function for testing purposes
+        for joint in self.joints:
+            print("Part name: {5}, Joint name: {0}, origin: {1}, limit: {2}, male: {3}, female: {4}".format(joint.joint_name, coordinates.cabToPart(self, joint.origin), coordinates.cabToPart(self, joint.limit), joint.male.part_name, joint.female.part_name, self.part_name))
+        
+    def orient(self):
+        if self.facing == Part.FRONT:
+            self.t = P3(0,1,0)
+            self.b = P3(0,-1,0)
+            self.l = P3(-1,0,0)
+            self.r = P3(1,0,0)
+            self.f = P3(0,0,1)
+            self.k = P3(0,0,-1)
+        elif self.facing == Part.BACK:
+            self.t = P3(0,1,0)
+            self.b = P3(0,-1,0)
+            self.l = P3(-1,0,0)
+            self.r = P3(1,0,0)
+            self.f = P3(0,0,1)
+            self.k = P3(0,0,-1)
+        elif self.facing == Part.TOP:
+            self.t = P3(0,1,0)
+            self.b = P3(0,-1,0)
+            self.l = P3(-1,0,0)
+            self.r = P3(1,0,0)
+            self.f = P3(0,0,1)
+            self.k = P3(0,0,-1)
+        elif self.facing == Part.BOTTOM:
+            self.t = P3(0,1,0)
+            self.b = P3(0,-1,0)
+            self.l = P3(-1,0,0)
+            self.r = P3(1,0,0)
+            self.f = P3(0,0,1)
+            self.k = P3(0,0,-1)
+        elif self.facing == Part.LEFT:
+            self.t = P3(0,1,0)
+            self.b = P3(0,-1,0)
+            self.l = P3(-1,0,0)
+            self.r = P3(1,0,0)
+            self.f = P3(0,0,1)
+            self.k = P3(0,0,-1)
+        elif self.facing == Part.RIGHT:
+            self.t = P3(0,1,0)
+            self.b = P3(0,-1,0)
+            self.l = P3(-1,0,0)
+            self.r = P3(1,0,0)
+            self.f = P3(0,0,1)
+            self.k = P3(0,0,-1)
+            
     def copy(self):
         newpart = Part(x=self.x, y=self.y, part_name=self.part_name, material=self._material, shape=self.shape, 
                        cell=self.cell, anchor=self.anchor, facing=self.facing, anchor_adjust=self.anchor_adjust)
@@ -260,7 +305,6 @@ def LeftSide(x=0, y=0, n="LeftSide", material=None, shape="rectangle", cell=None
     if not m:
         m = job_settings.casework_material
     part = Part(n, m, shape, cell, anchor, facing, origin, x, y)
-    part.origin = P3(m.thickness, 0, 0)
     return part
 
 def RightSide(x=0, y=0, n="RightSide", material=None, shape="rectangle", cell=None, anchor=Part.FRONT, facing=Part.LEFT, origin=P3(0,0,0)):

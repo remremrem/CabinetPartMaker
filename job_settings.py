@@ -20,12 +20,11 @@ kick_type = "integrated"
 drawer_rabbet_depth = .125 # how deep to rabbet drawer sides for front/back/solid bottom
 
 drawer_bottom_inset = .3937 # how far from bottom of drawer side to bottom of drawer bottom
-
 drawer_bottom_slot_width = .25 #how wide is the dado slot for drawer bottoms
 
 back_rabbet_depth = .125 #how deep to rabbet the back into the sides/top/bottom of cabinet
-
 back_inset = .375 # how far from the back of the cabinet side to the back of the cabinet back
+back_slot_depth = .25
 
 spanner_rabbet_depth = .125 #how deep a cabinet spanner should stick into a rabbet
 

@@ -1,5 +1,5 @@
 #coordinates.py
-from geometry import Point3 as P3
+from geometry import Point as P3
 
 cabinet = P3(1,1,1)
 System1 = cabinet
@@ -27,15 +27,17 @@ cabinet_right = P3(1,0,0)
 cabinet_top = P3(0,1,0)
 cabinet_bottom = P3(0,-1,0)
 
-def cabinetAxisToPartAxis(axis, part): #axis is a char in "xyzXYZ" or a Point3. part is a Part object
+def cabinetAxisToPartAxis(axis, part): #axis is a char in "xyzXYZ" or a Point. part is a Part object
     global X,Y,Z
+    print("AXIS!: ", axis)
     cabinet_axis = axis
-    if axis == "x" or axis == "X":
-        cabinet_axis = X
-    elif axis == "y" or axis == "Y":
-        cabinet_axis = Y
-    elif axis == "z" or axis == "Z":
-        cabinet_axis = Z
+    if isinstance(axis, str):
+        if axis == "x" or axis == "X":
+            cabinet_axis = X
+        elif axis == "y" or axis == "Y":
+            cabinet_axis = Y
+        elif axis == "z" or axis == "Z":
+            cabinet_axis = Z
         
     part_axis = None
     if part.facing == part.LEFT:
@@ -126,14 +128,13 @@ def cabToPart(part, coords):
         return None
     c = coords - part.origin
     def changeCoordSys(part, c):
-        new_coords = coords - part.origin
         ps = partSizeToCabinet(part)
         
         new_position = P3(0,0,0)
         if part.facing == part.LEFT: #left facing
-            new_position.x = ps.y - c.y
+            new_position.x = ps.y + c.y
             new_position.y = c.z
-            new_position.z = ps.x - c.x
+            new_position.z = -c.x
             
         elif part.facing == part.RIGHT: #right facing
             new_position.x = c.y
@@ -151,7 +152,7 @@ def cabToPart(part, coords):
         elif part.facing == part.BOTTOM: #bottom facing
             new_position.x = c.x
             new_position.y = c.z
-            new_position.z = ps.y - c.y
+            new_position.z = -c.y
             
         elif part.facing == part.TOP: #top facing
             new_position.x = ps.x - c.x
@@ -159,7 +160,9 @@ def cabToPart(part, coords):
             new_position.z = c.y
         return new_position
     
+    
     new_position = changeCoordSys(part, c)
+    print("CAB TO PART: ", coords, c, new_position)
     return new_position
     
 

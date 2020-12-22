@@ -1,8 +1,9 @@
 #cabinet.py
 
-import parts, geometry, joinery, job_settings
+import parts, geometry, joinery
+import job_settings as JS
 from enum import Enum
-from geometry import Point3 as P3
+from geometry import Point as P3
 
 
 # a property that is modified based on the state of other poperties
@@ -116,6 +117,7 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
     def __init__(self, celltype=OPEN, action=None, dividers=[], region=None, face=None, size=geometry.Point(1,1), depth=None):
         super().__init__()
         self.pos = 0
+        self._cabinet = None
         self.parent = None
         self.region = region
         self.face = face
@@ -135,8 +137,15 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
         else:
             self.dividers = [dividers]
             
-
-
+    @property
+    def cabinet(self):
+        if self.parent:
+            return self.parent.cabinet
+        else: return self._cabinet
+    @cabinet.setter
+    def cabinet(self, value):
+        self._cabinet = value
+    
     @property
     def limit(self):
         return self.origin + self.size
@@ -203,10 +212,10 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
             if cell.cell_type == Cell.BLIND:
                 if cell.origin.x < 1:
                     part = parts.LeftBlindPanel(x=cabinet.height, y=cell.limit.x, cell=cell)
-                    part.origin = geometry.Point3(cell.origin.x, cell.origin.y, cabinet.depth)
+                    part.origin = geometry.Point(cell.origin.x, cell.origin.y, cabinet.depth)
                 else:
                     part = parts.RightBlindPanel(x=cabinet.height, y=cabinet.width-cell.origin.x, cell=cell)
-                    part.origin = geometry.Point3(cell.limit.x, cell.limit.y, cabinet.depth)
+                    part.origin = geometry.Point(cell.limit.x, cell.limit.y, cabinet.depth)
                 cabinet.addPart(part)
                 
             elif cell.cell_type < 4 or cell.cell_type > 5 :
@@ -222,7 +231,7 @@ class Cell(list): #these are the cells that make up the "cabinet face grid"
             elif cell.cell_type == Cell.FALSE:
                 if cell.limit.y == cabinet.height:
                     cabinet.addPart(parts.VerticalFrontSpanner(x=cabinet.internal_width, y=cell.origin.y - cabinet.drawer_gap*.5, cell=cell))
-                    cabinet.addPart(parts.VerticalBackSpanner(x=cabinet.internal_width, y=job_settings.vertical_back_spanner_height))
+                    cabinet.addPart(parts.VerticalBackSpanner(x=cabinet.internal_width, y=JS.vertical_back_spanner_height))
                     
             if cell.cell_type == Cell.DOOR or cell.cell_type == Cell.DRAWER or cell.cell_type == cell.FALSE:
                 cabinet.addFace(cell.face)
@@ -262,7 +271,7 @@ class Cabinet:
         
         self.faces = []
         
-        self.root_cell = None
+        self._root_cell = None
         
         self.parts = []
         self.joints = []
@@ -276,7 +285,15 @@ class Cabinet:
     @kick_height.setter
     def kick_height(self, value):
         self.kh = value
-        
+    
+    @property
+    def root_cell(self):
+        return self._root_cell
+    @root_cell.setter
+    def root_cell(self, value):
+        self._root_cell = value
+        self._root_cell.cabinet = self
+    
     @property
     def internal_width(self):
         lw = 0
@@ -302,6 +319,7 @@ class Cabinet:
         return self.height - (tw+bw)
         
     def addPart(self, part):
+        part.cabinet = self
         self.parts.append(part)
         
     def addFace(self, face):
@@ -342,7 +360,7 @@ class Cabinet:
             elif p.part_name == "Top":
                 p.origin = P3(left_thickness, self.height - p.thickness, 0)
             elif p.part_name == "Back":
-                p.origin = P3(left_thickness, self.kick_height + bottom_thickness, job_settings.back_inset)
+                p.origin = P3(left_thickness, self.kick_height + bottom_thickness, JS.back_inset)
             elif p.part_name == "FrontSpanner":
                 p.origin = P3(left_thickness, self.height - p.thickness, self.depth - p.size.y)
             elif p.part_name == "BackSpanner":
@@ -379,35 +397,36 @@ class WallCabinet(Cabinet):
         self.finished_bottom = False
         self.finished_top = False
         
-        ls = parts.LeftSide(x=self.height, y=self.depth)
+        ls = parts.LeftSide(x=self.height, y=self.depth, origin=P3(0, 0, 0))
         print("LEFTSIDE!!!!!!!: ", ls, ls.size, self.height, self.depth)
-        rs = parts.RightSide(x=self.height, y=self.depth)        
+        rs = parts.RightSide(x=self.height, y=self.depth, origin=P3(self.width, self.height, 0))        
         self.addPart(ls)
         self.addPart(rs)
-        top = parts.Top(x=self.internal_width, y=self.depth)
+        top = parts.Top(x=self.internal_width, y=self.depth, origin=P3(ls.thickness, self.height, 0))
         joinery.ScrewJoint(top, ls, P3(ls.thickness, self.height-top.thickness, 0), P3(ls.thickness, self.height, self.depth))
         joinery.ScrewJoint(top, rs, P3(self.width-rs.thickness, self.height-top.thickness, 0), P3(self.width-rs.thickness, self.height, self.depth))
-        bot = parts.Bottom(x=self.internal_width, y=self.depth)
+        bot = parts.Bottom(x=self.internal_width, y=self.depth, origin=P3(ls.thickness, 0, 0))
         joinery.ScrewJoint(bot, ls, P3(ls.thickness, self.kick_height, 0), P3(ls.thickness, self.kick_height+bot.thickness, self.depth))
         joinery.ScrewJoint(bot, rs, P3(self.width-rs.thickness, self.kick_height, 0), P3(self.width-rs.thickness, self.kick_height+bot.thickness, self.depth))
         self.addPart(top)
         self.addPart(bot)
         if not open_back:
-            back = parts.Back(x=self.internal_width, y=self.internal_height)
+            back = parts.Back(x=self.internal_width, y=self.internal_height, origin=P3(ls.thickness, bot.thickness+self.kick_height, JS.back_inset))
             
-            joinery.Dado(back, ls, P3(ls.thickness, self.kick_height+bot.thickness, job_settings.back_inset), 
-                                    P3(ls.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+            joinery.BackDado(back, ls, P3(ls.thickness, self.kick_height+bot.thickness, JS.back_inset), 
+                                    P3(ls.thickness, self.height-top.thickness, JS.back_inset+JS.back_material.thickness))
             
-            joinery.Dado(back, rs, P3(self.width-rs.thickness, self.kick_height+bot.thickness, job_settings.back_inset), 
-                                    P3(self.width-rs.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+            joinery.BackDado(back, rs, P3(self.width-rs.thickness, self.kick_height+bot.thickness, JS.back_inset), 
+                                    P3(self.width-rs.thickness, self.height-top.thickness, JS.back_inset+JS.back_material.thickness))
             
-            joinery.Dado(back, top, P3(ls.thickness, self.height-top.thickness, job_settings.back_inset), 
-                                    P3(self.width-rs.thickness, self.height-top.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+            joinery.BackDado(back, top, P3(ls.thickness, self.height-top.thickness, JS.back_inset), 
+                                    P3(self.width-rs.thickness, self.height-top.thickness, JS.back_inset+JS.back_material.thickness))
             
-            joinery.Dado(back, bot, P3(ls.thickness, self.kick_height+bot.thickness, job_settings.back_inset), 
-                        P3(self.width-rs.thickness, self.kick_height+bot.thickness, job_settings.back_inset+job_settings.back_material.thickness))
+            joinery.BackDado(back, bot, P3(ls.thickness, self.kick_height+bot.thickness, JS.back_inset), 
+                        P3(self.width-rs.thickness, self.kick_height+bot.thickness, JS.back_inset+JS.back_material.thickness))
             
             self.addPart(back)
+            back.finalize()
         
 
 class BaseCabinet(Cabinet):
